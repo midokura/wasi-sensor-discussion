@@ -1,0 +1,130 @@
+name: Wasmtime
+
+on:
+  push:
+    branches: [ "main" ]
+    tags:
+      - "v*"
+  pull_request:
+    branches: [ "main" ]
+
+concurrency:
+  group: cmake-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-run:
+    env:
+      CC: ${{matrix.compiler}}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{matrix.os}}
+
+    steps:
+    - name: Install dependencies (rustup)
+      run: |
+        rustup target add wasm32-wasi
+
+    - name: Install dependencies (cargo)
+      run: |
+        cargo install --version 1.0.51 wasm-tools
+        cargo install --version 0.14.0 wit-bindgen-cli
+
+    - name: Install dependencies (ubuntu)
+      if: startsWith(matrix.os, 'ubuntu-')
+      run: sudo apt-get update && sudo apt-get install -y pax
+
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install wasmtime (ubuntu)
+      if: startsWith(matrix.os, 'ubuntu-')
+      run: |
+        curl -O -L https://github.com/bytecodealliance/wasmtime/releases/download/v14.0.4/wasmtime-v14.0.4-x86_64-linux.tar.xz
+        tar xvJf wasmtime-v14.0.4-x86_64-linux.tar.xz
+        echo "WASMTIME=$(pwd -P)/wasmtime-v14.0.4-x86_64-linux/wasmtime" >> ${GITHUB_ENV}
+
+    - name: Install wasmtime (macOS)
+      if: startsWith(matrix.os, 'macos-')
+      run: |
+        curl -O -L https://github.com/bytecodealliance/wasmtime/releases/download/v14.0.4/wasmtime-v14.0.4-x86_64-macos.tar.xz
+        tar xvzf wasmtime-v14.0.4-x86_64-macos.tar.xz
+        echo "WASMTIME=$(pwd -P)/wasmtime-v14.0.4-x86_64-macos/wasmtime" >> ${GITHUB_ENV}
+
+    - name: Build guest (Rust)
+      run: |
+        ./build.sh
+      working-directory: ${{github.workspace}}/guest
+
+    - name: Build guest (C)
+      run: |
+        ./build.sh
+      working-directory: ${{github.workspace}}/guest_c
+
+    - name: Build host
+      run: |
+        cargo build
+      working-directory: ${{github.workspace}}/host
+
+    - name: Run (component)
+      run: |
+        cargo run ../guest/guest-component.wasm
+      working-directory: ${{github.workspace}}/host
+
+    - name: Check the output (component)
+      run: |
+        test $(ls *.jpg|wc -l) -eq 60
+      working-directory: ${{github.workspace}}/host
+
+    - name: Clean up the output (component)
+      run: |
+        rm *.jpg
+      working-directory: ${{github.workspace}}/host
+
+    - name: Run (wasmtime precompiled component)
+      run: |
+        cargo run ../guest/guest-component.cwasm
+      working-directory: ${{github.workspace}}/host
+
+    - name: Check the output (wasmtime precompiled component)
+      run: |
+        test $(ls *.jpg|wc -l) -eq 60
+      working-directory: ${{github.workspace}}/host
+
+    - name: Clean up the output (wasmtime precompiled component)
+      run: |
+        rm *.jpg
+      working-directory: ${{github.workspace}}/host
+
+    - name: Run (C, component)
+      run: |
+        cargo run ../guest_c/guest-component.wasm
+      working-directory: ${{github.workspace}}/host
+
+    - name: Check the output (C, component)
+      run: |
+        test $(ls *.jpg|wc -l) -eq 60
+      working-directory: ${{github.workspace}}/host
+
+    - name: Clean up the output (C, component)
+      run: |
+        rm *.jpg
+      working-directory: ${{github.workspace}}/host
+
+    - name: Run (C, wasmtime precompiled component)
+      run: |
+        cargo run ../guest_c/guest-component.cwasm
+      working-directory: ${{github.workspace}}/host
+
+    - name: Check the output (C, precompiled component)
+      run: |
+        test $(ls *.jpg|wc -l) -eq 60
+      working-directory: ${{github.workspace}}/host
+
+    - name: Clean up the output (C, precompiled component)
+      run: |
+        rm *.jpg
+      working-directory: ${{github.workspace}}/host

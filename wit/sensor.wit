@@ -1,0 +1,62 @@
+/// WASI Sensor is an Sensor abstraction API
+package wasi:sensor;
+
+interface sensor {
+  use property.{property-key, property-value};
+
+  enum device-error {
+      not-found,
+      invalid-argument,
+      resource-exhausted,
+      permission-denied,
+      busy,
+      timeout,
+      cancelled,
+      aborted,
+      already-exists,
+      invalid-operation,
+      out-of-range,
+      data-loss,
+      hardware-error,
+      not-supported,
+      unknown
+  }
+
+  // Sensor device
+  resource device {
+      /// open the device.
+      /// this might power on the device.
+      open: static func(name: string) -> result<device, device-error>;
+
+      /// get a list of names of devices available on the system.
+      list-names: static func() -> result<list<string>, device-error>;
+
+      /// start sending the data to buffer
+      start: func(
+          buffer-pool: string
+      )->result<_, device-error>;
+
+      /// stop sending the data to buffer
+      stop: func(
+      )->result<_, device-error>;
+
+      /// set property
+      set-property: func(
+          key: property-key,
+          value: property-value
+      ) ->result<_, device-error>;
+
+      /// get property
+      get-property: func(
+          property: property-key
+      )->result<property-value, device-error>;
+  }
+}
+
+interface %interface {
+    main: func() -> result;
+}
+
+
+
+

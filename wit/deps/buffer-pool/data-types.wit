@@ -1,0 +1,66 @@
+/// WASI Sensor is an Sensor abstraction API
+
+interface data-types {
+    /// sensor data type
+    record vector3f {
+        x: float32,
+        y: float32,
+        z: float32,
+    }
+
+    record quaternion-f {
+        x: float32,
+        y: float32,
+        z: float32,
+        w: float32,
+    }
+
+
+
+    enum pixel-format {
+        /// greyscale, bpp=8
+        grey,
+        /// r,g,b bpp=24
+        rgb24,
+        /// b,g,r bpp=24
+        bgr24,
+        /// a,r,g,b bpp=32
+        argb32,
+        /// a,b,g,r bpp=32
+        abgr32,
+        /// YUV422 (Y1,Cb,Y2,Cr) bpp=32
+        yuy2,
+
+        /// how to express yuv, compress, planar
+    }
+
+    record dimension {
+        /// Image width.
+        width: u32,
+        /// Image height.
+        height: u32,
+        /// Image stride
+        stride-bytes: u32,
+        /// The format of a pixel.
+        pixel-format: pixel-format,
+    }
+
+    record image {
+        dimension: dimension,
+        payload: list<u8>,
+    }
+
+    record depth {
+        /// dimension of depth image is updated later here
+        payload: list<u8>,
+    }
+
+
+    variant data-type {
+        image(image),
+        /// other sensor such as depth, angular velocity, linear acceleration etc is comming here
+
+    }
+
+}
+

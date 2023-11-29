@@ -5,8 +5,12 @@
 // Proposals should remove these `//` commments, and edit the `world` name and
 // imports below to pull in their own `interface`s.
 
-package wasi:example-package
+package wasi:sensor;
 
-world imports {
-    import example-interface
+world sensing {
+    import sensor;
+    import property;
+    import wasi:buffer-pool/buffer-pool;
+    import wasi:buffer-pool/data-types;
+    export %interface;
 }
