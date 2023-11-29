@@ -1,0 +1,100 @@
+/// WASI Sensor is an Sensor abstraction API
+package wasi:buffer-pool;
+
+/// sensor frame/buffer management I/F
+interface buffer-pool {
+    use data-types.{data-type};
+
+    enum buffer-error {
+      not-found,
+      invalid-argument,
+      resource-exhausted,
+      permission-denied,
+      busy,
+      timeout,
+      cancelled,
+      aborted,
+      already-exists,
+      invalid-operation,
+      out-of-range,
+      data-loss,
+      hardware-error,
+      not-supported,
+      unknown
+    }
+
+    type size = u32;
+
+    /// timestamp is the elasped time in nanoseconds since a fixed point
+    /// in the past. it's supposed to increase monotonically.
+    type timestamp = u64;
+
+    record frame-info {
+        /// sequence number within the pool. it increases monotonically.
+        /// a user of this api might observe discontiguous values when some
+        /// of frames are discarded within the pool.
+        sequence-number: u64,
+
+        /// timestamp of the frame.
+        /// usually the time when it was read from the underlying hardware.
+        timestamp: timestamp,
+
+        /// 1 or more raw-data for this frame.
+        data: list<frame-data>
+    }
+
+    variant frame-data {
+        /// data passed by value
+        by-value(data-type),
+
+        /// a reference to host memory
+        host-memory(memory),
+    }
+
+    resource memory {
+       address: func()-> u64;
+       size: func()-> size;
+       invalidate: func()-> result<_, buffer-error>;
+    }
+
+    enum buffering-mode {
+        buffering-off,
+        buffering-discard,     /**< Discard the latest frame. behave like queue */
+        buffering-overwrite,   /**< Overwrite the oldest frame. behave like ring */
+        buffering-unlimited,
+    }
+
+    /// a pool consists of a set of buffers.
+    /// the number of buffers in a pool is static.
+    /// when data (a frame) comes in from an associated device,
+    /// it's stored in one of free buffers.
+    /// when a user app request data either by block-read or poll-read,
+    /// the oldest frame is returned.
+    /// when the user app is done with the frame, it should notify it to
+    /// the pool by dropping the frame-info and associated resources
+    /// like "memory".
+    resource pool {
+        /// create a pool.
+        ///
+        /// size: the max size of each buffer in bytes. if frame-info::data
+        /// has exactly one data and its type is data-types::image,
+        /// this value controls the max payload size. otherwise, it's
+        /// implementation-defined.
+        ///
+        /// buffer-num: the max number of buffers in the pool.
+        /// for buffering-discard and buffering-overwrite, this controls
+        /// how many frames can be in the pool.
+        /// for other buffering modes, this is ignored.
+        ///
+        /// name: the name of the pool. you can use this for device.start().
+        create: static func(mode:buffering-mode, size:u32, buffer-num:u32, name:string) ->result<pool, buffer-error>;
+
+        block-read-frame: func()-> result<frame-info, buffer-error>;
+        poll-read-frame: func()-> result<frame-info, buffer-error>;
+    }
+}
+
+world buffering {
+  import buffer-pool;
+  import data-types;
+}
