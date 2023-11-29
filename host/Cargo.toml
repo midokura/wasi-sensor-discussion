@@ -9,7 +9,7 @@ edition = "2021"
 anyhow = "1.0.75"
 fraction = "0.14"
 tracing = { version = "0.1.40", features = ["max_level_trace"] }
-tracing-subscriber = "0.3.17"
+tracing-subscriber = "0.3.18"
 image = { version = "0.24.7", default-features = false }
 
 # released versions of nokhwa is a bit broken for avfoundation.
