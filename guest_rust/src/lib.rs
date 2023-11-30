@@ -186,7 +186,7 @@ fn main2() -> Result<()> {
                 denominator: *ratio.denom() as u32,
             });
         println!("setting sampling rate to {:?}", value);
-        sensor.set_property(wasi::sensor::property::PropertyKey::SamplingRate, &value)?;
+        sensor.set_property(wasi::sensor::property::PropertyKey::SamplingRate, value)?;
         // confirm the result
         let value = sensor.get_property(wasi::sensor::property::PropertyKey::SamplingRate)?;
         println!("sensor sampling rate {:?}", value);
