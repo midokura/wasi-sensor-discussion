@@ -112,12 +112,6 @@
 <li><a name="fraction.numerator"><code>numerator</code></a>: <code>u32</code></li>
 <li><a name="fraction.denominator"><code>denominator</code></a>: <code>u32</code></li>
 </ul>
-<h4><a name="exposure"><code>record exposure</code></a></h4>
-<h5>Record Fields</h5>
-<ul>
-<li><a name="exposure.mode"><code>mode</code></a>: <code>string</code><p>Mode of exposure.
-</li>
-</ul>
 <h4><a name="property_key"><code>enum property-key</code></a></h4>
 <h5>Enum Cases</h5>
 <ul>
@@ -129,16 +123,12 @@ Eg. frame rate for image sensors.
 <li>
 <p><a name="property_key.dimension"><a href="#dimension"><code>dimension</code></a></a></p>
 </li>
-<li>
-<p><a name="property_key.exposure"><a href="#exposure"><code>exposure</code></a></a></p>
-</li>
 </ul>
 <h4><a name="property_value"><code>variant property-value</code></a></h4>
 <h5>Variant Cases</h5>
 <ul>
 <li><a name="property_value.fraction"><a href="#fraction"><code>fraction</code></a></a>: <a href="#fraction"><a href="#fraction"><code>fraction</code></a></a></li>
 <li><a name="property_value.dimension"><a href="#dimension"><code>dimension</code></a></a>: <a href="#dimension"><a href="#dimension"><code>dimension</code></a></a></li>
-<li><a name="property_value.exposure"><a href="#exposure"><code>exposure</code></a></a>: <a href="#exposure"><a href="#exposure"><code>exposure</code></a></a></li>
 </ul>
 <h2><a name="wasi:sensor_sensor">Import interface wasi:sensor/sensor</a></h2>
 <hr />
