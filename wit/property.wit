@@ -7,29 +7,16 @@ interface property {
     denominator: u32
   }
 
-
-
-  record exposure {
-    /// Mode of exposure.
-    mode: string,
-    /// More parameters for exposure.
-  }
-
-
   enum property-key {
     /// The number of samples in a second. (fraction)
     /// Eg. frame rate for image sensors.
     sampling-rate,
-
     dimension,
-    exposure,
   }
 
   variant property-value {
     fraction(fraction),
-
     dimension(dimension),
-    exposure(exposure),
   }
 }
 
