@@ -10,6 +10,7 @@ use wasmtime::{Config, Engine, Store};
 use wasmtime_wasi::ambient_authority;
 use wasmtime_wasi::preview2::DirPerms;
 use wasmtime_wasi::preview2::FilePerms;
+use wasmtime_wasi::preview2::Pollable;
 use wasmtime_wasi::preview2::Table;
 use wasmtime_wasi::preview2::WasiCtx;
 use wasmtime_wasi::preview2::WasiCtxBuilder;
@@ -32,6 +33,7 @@ wasmtime::component::bindgen!({
     with: {
         "wasi:buffer-pool/buffer-pool/pool": Pool,
         "wasi:sensor/sensor/device": Device,
+        "wasi:io/poll": wasmtime_wasi::preview2::bindings::io::poll,
     },
 });
 
@@ -131,6 +133,13 @@ impl<T: WasiSensorView> wasi::buffer_pool::buffer_pool::HostPool for T {
         Ok(Err(
             wasi::buffer_pool::buffer_pool::BufferError::NotSupported,
         ))
+    }
+
+    fn subscribe(
+        &mut self,
+        res: Resource<wasi::buffer_pool::buffer_pool::Pool>,
+    ) -> Result<Resource<Pollable>> {
+        todo!()
     }
 
     fn get_statistics(
