@@ -5,6 +5,7 @@
 <li>interface <a href="#wasi:buffer_pool_data_types"><code>wasi:buffer-pool/data-types</code></a></li>
 <li>interface <a href="#wasi:sensor_property"><code>wasi:sensor/property</code></a></li>
 <li>interface <a href="#wasi:sensor_sensor"><code>wasi:sensor/sensor</code></a></li>
+<li>interface <a href="#wasi:io_poll_0.2.0_rc_2023_11_10"><code>wasi:io/poll@0.2.0-rc-2023-11-10</code></a></li>
 <li>interface <a href="#wasi:buffer_pool_buffer_pool"><code>wasi:buffer-pool/buffer-pool</code></a></li>
 </ul>
 </li>
@@ -231,12 +232,65 @@ this might power on the device.</p>
 <ul>
 <li><a name="method_device.get_property.0"></a> result&lt;<a href="#property_value"><a href="#property_value"><code>property-value</code></a></a>, <a href="#device_error"><a href="#device_error"><code>device-error</code></a></a>&gt;</li>
 </ul>
+<h2><a name="wasi:io_poll_0.2.0_rc_2023_11_10">Import interface wasi:io/poll@0.2.0-rc-2023-11-10</a></h2>
+<p>A poll API intended to let users wait for I/O events on multiple handles
+at once.</p>
+<hr />
+<h3>Types</h3>
+<h4><a name="pollable"><code>resource pollable</code></a></h4>
+<h2><a href="#pollable"><code>pollable</code></a> represents a single I/O event which may be ready, or not.</h2>
+<h3>Functions</h3>
+<h4><a name="method_pollable.ready"><code>[method]pollable.ready: func</code></a></h4>
+<p>Return the readiness of a pollable. This function never blocks.</p>
+<p>Returns <code>true</code> when the pollable is ready, and <code>false</code> otherwise.</p>
+<h5>Params</h5>
+<ul>
+<li><a name="method_pollable.ready.self"><code>self</code></a>: borrow&lt;<a href="#pollable"><a href="#pollable"><code>pollable</code></a></a>&gt;</li>
+</ul>
+<h5>Return values</h5>
+<ul>
+<li><a name="method_pollable.ready.0"></a> <code>bool</code></li>
+</ul>
+<h4><a name="method_pollable.block"><code>[method]pollable.block: func</code></a></h4>
+<p><code>block</code> returns immediately if the pollable is ready, and otherwise
+blocks until ready.</p>
+<p>This function is equivalent to calling <code>poll.poll</code> on a list
+containing only this pollable.</p>
+<h5>Params</h5>
+<ul>
+<li><a name="method_pollable.block.self"><code>self</code></a>: borrow&lt;<a href="#pollable"><a href="#pollable"><code>pollable</code></a></a>&gt;</li>
+</ul>
+<h4><a name="poll"><code>poll: func</code></a></h4>
+<p>Poll for completion on a set of pollables.</p>
+<p>This function takes a list of pollables, which identify I/O sources of
+interest, and waits until one or more of the events is ready for I/O.</p>
+<p>The result <code>list&lt;u32&gt;</code> contains one or more indices of handles in the
+argument list that is ready for I/O.</p>
+<p>If the list contains more elements than can be indexed with a <code>u32</code>
+value, this function traps.</p>
+<p>A timeout can be implemented by adding a pollable from the
+wasi-clocks API to the list.</p>
+<p>This function does not return a <code>result</code>; polling in itself does not
+do any I/O so it doesn't fail. If any of the I/O sources identified by
+the pollables has an error, it is indicated by marking the source as
+being reaedy for I/O.</p>
+<h5>Params</h5>
+<ul>
+<li><a name="poll.in"><code>in</code></a>: list&lt;borrow&lt;<a href="#pollable"><a href="#pollable"><code>pollable</code></a></a>&gt;&gt;</li>
+</ul>
+<h5>Return values</h5>
+<ul>
+<li><a name="poll.0"></a> list&lt;<code>u32</code>&gt;</li>
+</ul>
 <h2><a name="wasi:buffer_pool_buffer_pool">Import interface wasi:buffer-pool/buffer-pool</a></h2>
 <p>sensor frame/buffer management I/F</p>
 <hr />
 <h3>Types</h3>
-<h4><a name="data_type"><code>type data-type</code></a></h4>
-<p><a href="#data_type"><a href="#data_type"><code>data-type</code></a></a></p>
+<h4><a name="pollable"><code>type pollable</code></a></h4>
+<p><a href="#pollable"><a href="#pollable"><code>pollable</code></a></a></p>
+<p>
+#### <a name="data_type">`type data-type`</a>
+[`data-type`](#data_type)
 <p>
 #### <a name="buffer_error">`enum buffer-error`</a>
 <h5>Enum Cases</h5>
@@ -398,6 +452,15 @@ for other buffering modes, this is ignored.</p>
 <h5>Return values</h5>
 <ul>
 <li><a name="method_pool.poll_read_frame.0"></a> result&lt;<a href="#frame_info"><a href="#frame_info"><code>frame-info</code></a></a>, <a href="#buffer_error"><a href="#buffer_error"><code>buffer-error</code></a></a>&gt;</li>
+</ul>
+<h4><a name="method_pool.subscribe"><code>[method]pool.subscribe: func</code></a></h4>
+<h5>Params</h5>
+<ul>
+<li><a name="method_pool.subscribe.self"><code>self</code></a>: borrow&lt;<a href="#pool"><a href="#pool"><code>pool</code></a></a>&gt;</li>
+</ul>
+<h5>Return values</h5>
+<ul>
+<li><a name="method_pool.subscribe.0"></a> own&lt;<a href="#pollable"><a href="#pollable"><code>pollable</code></a></a>&gt;</li>
 </ul>
 <h4><a name="method_pool.get_statistics"><code>[method]pool.get-statistics: func</code></a></h4>
 <h5>Params</h5>
