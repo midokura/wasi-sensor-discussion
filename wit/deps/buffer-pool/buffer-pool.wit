@@ -3,6 +3,7 @@ package wasi:buffer-pool;
 
 /// sensor frame/buffer management I/F
 interface buffer-pool {
+    use wasi:io/poll@0.2.0-rc-2023-11-10.{pollable};
     use data-types.{data-type};
 
     enum buffer-error {
@@ -97,6 +98,8 @@ interface buffer-pool {
 
         block-read-frame: func()-> result<frame-info, buffer-error>;
         poll-read-frame: func()-> result<frame-info, buffer-error>;
+
+        subscribe: func() -> pollable;
 
         get-statistics: func()-> result<pool-statistics, buffer-error>;
     }
