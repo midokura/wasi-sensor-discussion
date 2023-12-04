@@ -57,74 +57,74 @@ jobs:
     - name: Build guest (Rust)
       run: |
         ./build.sh
-      working-directory: ${{github.workspace}}/guest
+      working-directory: ${{github.workspace}}/guest_rust
 
     - name: Build guest (C)
       run: |
         ./build.sh
       working-directory: ${{github.workspace}}/guest_c
 
-    - name: Build host
+    - name: Build host_wasmtime
       run: |
         cargo build
-      working-directory: ${{github.workspace}}/host
+      working-directory: ${{github.workspace}}/host_wasmtime
 
     - name: Run (component)
       run: |
-        cargo run ../guest/guest-component.wasm
-      working-directory: ${{github.workspace}}/host
+        cargo run ../guest_rust/guest-component.wasm
+      working-directory: ${{github.workspace}}/host_wasmtime
 
     - name: Check the output (component)
       run: |
         test $(ls *.jpg|wc -l) -eq 60
-      working-directory: ${{github.workspace}}/host
+      working-directory: ${{github.workspace}}/host_wasmtime
 
     - name: Clean up the output (component)
       run: |
         rm *.jpg
-      working-directory: ${{github.workspace}}/host
+      working-directory: ${{github.workspace}}/host_wasmtime
 
     - name: Run (wasmtime precompiled component)
       run: |
-        cargo run ../guest/guest-component.cwasm
-      working-directory: ${{github.workspace}}/host
+        cargo run ../guest_rust/guest-component.cwasm
+      working-directory: ${{github.workspace}}/host_wasmtime
 
     - name: Check the output (wasmtime precompiled component)
       run: |
         test $(ls *.jpg|wc -l) -eq 60
-      working-directory: ${{github.workspace}}/host
+      working-directory: ${{github.workspace}}/host_wasmtime
 
     - name: Clean up the output (wasmtime precompiled component)
       run: |
         rm *.jpg
-      working-directory: ${{github.workspace}}/host
+      working-directory: ${{github.workspace}}/host_wasmtime
 
     - name: Run (C, component)
       run: |
         cargo run ../guest_c/guest-component.wasm
-      working-directory: ${{github.workspace}}/host
+      working-directory: ${{github.workspace}}/host_wasmtime
 
     - name: Check the output (C, component)
       run: |
         test $(ls *.jpg|wc -l) -eq 60
-      working-directory: ${{github.workspace}}/host
+      working-directory: ${{github.workspace}}/host_wasmtime
 
     - name: Clean up the output (C, component)
       run: |
         rm *.jpg
-      working-directory: ${{github.workspace}}/host
+      working-directory: ${{github.workspace}}/host_wasmtime
 
     - name: Run (C, wasmtime precompiled component)
       run: |
         cargo run ../guest_c/guest-component.cwasm
-      working-directory: ${{github.workspace}}/host
+      working-directory: ${{github.workspace}}/host_wasmtime
 
     - name: Check the output (C, precompiled component)
       run: |
         test $(ls *.jpg|wc -l) -eq 60
-      working-directory: ${{github.workspace}}/host
+      working-directory: ${{github.workspace}}/host_wasmtime
 
     - name: Clean up the output (C, precompiled component)
       run: |
         rm *.jpg
-      working-directory: ${{github.workspace}}/host
+      working-directory: ${{github.workspace}}/host_wasmtime
