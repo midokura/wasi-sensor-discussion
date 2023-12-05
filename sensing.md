@@ -59,7 +59,7 @@
 </li>
 <li>
 <p><a name="pixel_format.yuy2"><code>yuy2</code></a></p>
-<p>YUV422 (Y1,Cb,Y2,Cr) bpp=32
+<p>YUV422 (Y1,Cb,Y2,Cr) bpp=16
 </li>
 </ul>
 <h4><a name="dimension"><code>record dimension</code></a></h4>
