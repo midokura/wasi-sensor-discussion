@@ -43,16 +43,16 @@ jobs:
     - name: Install wasmtime (ubuntu)
       if: startsWith(matrix.os, 'ubuntu-')
       run: |
-        curl -O -L https://github.com/bytecodealliance/wasmtime/releases/download/v14.0.4/wasmtime-v14.0.4-x86_64-linux.tar.xz
-        tar xvJf wasmtime-v14.0.4-x86_64-linux.tar.xz
-        echo "WASMTIME=$(pwd -P)/wasmtime-v14.0.4-x86_64-linux/wasmtime" >> ${GITHUB_ENV}
+        curl -O -L https://github.com/bytecodealliance/wasmtime/releases/download/v15.0.1/wasmtime-v15.0.1-x86_64-linux.tar.xz
+        tar xvJf wasmtime-v15.0.1-x86_64-linux.tar.xz
+        echo "WASMTIME=$(pwd -P)/wasmtime-v15.0.1-x86_64-linux/wasmtime" >> ${GITHUB_ENV}
 
     - name: Install wasmtime (macOS)
       if: startsWith(matrix.os, 'macos-')
       run: |
-        curl -O -L https://github.com/bytecodealliance/wasmtime/releases/download/v14.0.4/wasmtime-v14.0.4-x86_64-macos.tar.xz
-        tar xvzf wasmtime-v14.0.4-x86_64-macos.tar.xz
-        echo "WASMTIME=$(pwd -P)/wasmtime-v14.0.4-x86_64-macos/wasmtime" >> ${GITHUB_ENV}
+        curl -O -L https://github.com/bytecodealliance/wasmtime/releases/download/v15.0.1/wasmtime-v15.0.1-x86_64-macos.tar.xz
+        tar xvzf wasmtime-v15.0.1-x86_64-macos.tar.xz
+        echo "WASMTIME=$(pwd -P)/wasmtime-v15.0.1-x86_64-macos/wasmtime" >> ${GITHUB_ENV}
 
     - name: Build guest (Rust)
       run: |

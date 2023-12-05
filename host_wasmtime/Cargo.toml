@@ -20,5 +20,5 @@ tokio = { version = "1.26.0", default-features = false }
 nokhwa = {git = "https://github.com/yamt/nokhwa", rev = "0.10+fixes", features = ["input-native", "output-threaded"]}
 
 # preview2 and component-model are still moving targets.
-wasmtime = { version = "14.0.4", default-features = false, features = ["component-model", "cranelift"]}
-wasmtime-wasi = { version = "14.0.4", default-features = false, features = ["preview2", "sync"] }
+wasmtime = { version = "15.0.1", default-features = false, features = ["component-model", "cranelift"]}
+wasmtime-wasi = { version = "15.0.1", default-features = false, features = ["preview2", "sync"] }
