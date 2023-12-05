@@ -96,8 +96,11 @@ interface buffer-pool {
         /// name: the name of the pool. you can use this for device.start().
         create: static func(mode:buffering-mode, size:u32, buffer-num:u32, name:string) ->result<pool, buffer-error>;
 
-        block-read-frame: func()-> result<frame-info, buffer-error>;
-        poll-read-frame: func()-> result<frame-info, buffer-error>;
+        /// try to read frames.
+        /// this function returns 0 frames when
+        ///  - max-results = 0
+        ///  - or, no frames are immediately available
+        read-frames: func(max-results: u32)-> result<list<frame-info>, buffer-error>;
 
         subscribe: func() -> pollable;
 
