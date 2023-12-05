@@ -55,7 +55,9 @@ impl Subscribe for Pool {
         if self.next_frame.is_some() {
             return;
         }
+        // XXX this confuses the flow-control in the pool by 1 frame
         let frame = self.pool.dequeue().await;
+        assert!(self.next_frame.is_none()); /* XXX */
         self.next_frame = Some(frame);
     }
 }
