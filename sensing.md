@@ -435,23 +435,21 @@ for other buffering modes, this is ignored.</p>
 <ul>
 <li><a name="static_pool.create.0"></a> result&lt;own&lt;<a href="#pool"><a href="#pool"><code>pool</code></a></a>&gt;, <a href="#buffer_error"><a href="#buffer_error"><code>buffer-error</code></a></a>&gt;</li>
 </ul>
-<h4><a name="method_pool.block_read_frame"><code>[method]pool.block-read-frame: func</code></a></h4>
+<h4><a name="method_pool.read_frames"><code>[method]pool.read-frames: func</code></a></h4>
+<p>try to read frames.
+this function returns 0 frames when</p>
+<ul>
+<li>max-results = 0</li>
+<li>or, no frames are immediately available</li>
+</ul>
 <h5>Params</h5>
 <ul>
-<li><a name="method_pool.block_read_frame.self"><code>self</code></a>: borrow&lt;<a href="#pool"><a href="#pool"><code>pool</code></a></a>&gt;</li>
+<li><a name="method_pool.read_frames.self"><code>self</code></a>: borrow&lt;<a href="#pool"><a href="#pool"><code>pool</code></a></a>&gt;</li>
+<li><a name="method_pool.read_frames.max_results"><code>max-results</code></a>: <code>u32</code></li>
 </ul>
 <h5>Return values</h5>
 <ul>
-<li><a name="method_pool.block_read_frame.0"></a> result&lt;<a href="#frame_info"><a href="#frame_info"><code>frame-info</code></a></a>, <a href="#buffer_error"><a href="#buffer_error"><code>buffer-error</code></a></a>&gt;</li>
-</ul>
-<h4><a name="method_pool.poll_read_frame"><code>[method]pool.poll-read-frame: func</code></a></h4>
-<h5>Params</h5>
-<ul>
-<li><a name="method_pool.poll_read_frame.self"><code>self</code></a>: borrow&lt;<a href="#pool"><a href="#pool"><code>pool</code></a></a>&gt;</li>
-</ul>
-<h5>Return values</h5>
-<ul>
-<li><a name="method_pool.poll_read_frame.0"></a> result&lt;<a href="#frame_info"><a href="#frame_info"><code>frame-info</code></a></a>, <a href="#buffer_error"><a href="#buffer_error"><code>buffer-error</code></a></a>&gt;</li>
+<li><a name="method_pool.read_frames.0"></a> result&lt;list&lt;<a href="#frame_info"><a href="#frame_info"><code>frame-info</code></a></a>&gt;, <a href="#buffer_error"><a href="#buffer_error"><code>buffer-error</code></a></a>&gt;</li>
 </ul>
 <h4><a name="method_pool.subscribe"><code>[method]pool.subscribe: func</code></a></h4>
 <h5>Params</h5>
