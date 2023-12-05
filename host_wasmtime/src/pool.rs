@@ -3,6 +3,7 @@ use anyhow::Result;
 use std::sync::Mutex;
 use std::time::Instant;
 use tokio::sync::mpsc::channel;
+use tokio::sync::mpsc::error::TryRecvError;
 use tokio::sync::mpsc::Receiver;
 use tokio::sync::mpsc::Sender;
 
@@ -59,7 +60,7 @@ impl SimplePool {
 }
 
 impl BufferPool for SimplePool {
-    fn enqueue(&self, frame: Box<FrameData>, timestamp: Option<u64>) -> Result<(), Error> {
+    fn try_enqueue(&self, frame: Box<FrameData>, timestamp: Option<u64>) -> Result<(), Error> {
         let mut seq = self.sequencer.lock().unwrap();
         let timestamp = match timestamp {
             Some(t) => t,
@@ -77,10 +78,16 @@ impl BufferPool for SimplePool {
         }
         Ok(())
     }
-    fn dequeue(&self) -> (u64, u64, Box<FrameData>) {
+    fn try_dequeue(&self) -> Option<(u64, u64, Box<FrameData>)> {
         let mut receiver = self.receiver.lock().unwrap();
-        receiver.dequeued += 1;
-        receiver.receiver.blocking_recv().unwrap()
+        match receiver.receiver.try_recv() {
+            Ok(ok) => {
+                receiver.dequeued += 1;
+                Some(ok)
+            }
+            Err(TryRecvError::Empty) => None,
+            _ => panic!("disconnected"),
+        }
     }
     fn get_statistics(&self) -> Result<PoolStatistics, Error> {
         let seq = self.sequencer.lock().unwrap();

@@ -103,36 +103,29 @@ impl<T: WasiSensorView> wasi::buffer_pool::buffer_pool::HostPool for T {
         Ok(Ok(idx))
     }
 
-    fn block_read_frame(
+    fn read_frames(
         &mut self,
         res: Resource<wasi::buffer_pool::buffer_pool::Pool>,
+        max_results: u32,
     ) -> Result<
         Result<
-            wasi::buffer_pool::buffer_pool::FrameInfo,
+            Vec<wasi::buffer_pool::buffer_pool::FrameInfo>,
             wasi::buffer_pool::buffer_pool::BufferError,
         >,
     > {
         let pool = self.table().get_resource_mut(&res)?;
-        let (sequence_number, timestamp, data) = pool.pool.dequeue();
+        if max_results == 0 {
+            return Ok(Ok(vec![]));
+        }
+        let Some((sequence_number, timestamp, data)) = pool.pool.try_dequeue() else {
+            return Ok(Ok(vec![]));
+        };
         let frame = wasi::buffer_pool::buffer_pool::FrameInfo {
             sequence_number: sequence_number,
             timestamp: timestamp,
             data: vec![*data],
         };
-        Ok(Ok(frame))
-    }
-    fn poll_read_frame(
-        &mut self,
-        res: Resource<wasi::buffer_pool::buffer_pool::Pool>,
-    ) -> Result<
-        Result<
-            wasi::buffer_pool::buffer_pool::FrameInfo,
-            wasi::buffer_pool::buffer_pool::BufferError,
-        >,
-    > {
-        Ok(Err(
-            wasi::buffer_pool::buffer_pool::BufferError::NotSupported,
-        ))
+        Ok(Ok(vec![frame]))
     }
 
     fn subscribe(

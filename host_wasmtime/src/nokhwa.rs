@@ -90,7 +90,7 @@ impl SensorDevice for NokhwaDevice {
             let data = wasi::buffer_pool::buffer_pool::FrameData::ByValue(
                 wasi::buffer_pool::data_types::DataType::Image(image),
             );
-            match pool.enqueue(Box::new(data), None) {
+            match pool.try_enqueue(Box::new(data), None) {
                 Ok(_) => println!("NokhwaDevice frame enqueued"),
                 _ => println!("NokhwaDevice frame dropped"),
             }
