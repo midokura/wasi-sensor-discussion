@@ -1,7 +1,7 @@
 #! /bin/sh
 set -e
 if [ ! -f wasi_snapshot_preview1.reactor.wasm ]; then
-    curl --fail -L -O https://github.com/bytecodealliance/wasmtime/releases/download/v14.0.4/wasi_snapshot_preview1.reactor.wasm
+    curl --fail -L -O https://github.com/bytecodealliance/wasmtime/releases/download/v15.0.1/wasi_snapshot_preview1.reactor.wasm
 fi
 
 if [ ! -d libjpeg ]; then
