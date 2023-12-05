@@ -195,14 +195,14 @@ fn main2() -> Result<()> {
     println!("starting sensor {:?}", sensor);
     sensor.start(&pool_name)?;
     let poll = pool.subscribe();
-    for _ in 0..60 {
-        loop {
-            poll.block();
-            let frames = pool.read_frames(1)?;
-            assert!(frames.len() == 1);
-            for ref frame in &frames {
-                process_frame(frame)?;
-            }
+    let mut n = 0;
+    while n < 60 {
+        poll.block();
+        let frames = pool.read_frames(1)?;
+        assert!(frames.len() == 1);
+        for ref frame in &frames {
+            process_frame(frame)?;
+            n += 1;
         }
     }
     let stats = pool.get_statistics()?;
