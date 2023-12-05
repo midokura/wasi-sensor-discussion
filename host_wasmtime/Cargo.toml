@@ -11,6 +11,7 @@ fraction = "0.14"
 tracing = { version = "0.1.40", features = ["max_level_trace"] }
 tracing-subscriber = "0.3.18"
 image = { version = "0.24.7", default-features = false }
+tokio = { version = "1.26.0", default-features = false }
 
 # released versions of nokhwa is a bit broken for avfoundation.
 # https://github.com/l1npengtul/nokhwa/pull/151
