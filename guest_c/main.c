@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <getopt.h>
 #include <inttypes.h>
 #include <limits.h>
 #include <stdio.h>
@@ -14,7 +15,6 @@
                 .ptr = (uint8_t *)str, .len = sizeof(str) - 1                 \
         }
 
-sensing_string_t device_name = STRING_LITERAL("dummy");
 sensing_string_t pool_name = STRING_LITERAL("my-pool");
 
 bool
@@ -123,6 +123,69 @@ exports_wasi_sensor_interface_main()
 
         fprintf(stderr, "C guest started\n");
 
+        const char *sensor = "dummy";
+        {
+                uint8_t *argbuf;
+                size_t arg_size;
+                char **argv;
+                size_t argc;
+                int ret;
+                ret = __wasi_args_sizes_get(&argc, &arg_size);
+                if (ret != 0) {
+                        fprintf(stderr,
+                                "__wasi_args_sizes_get failed with %d\n", ret);
+                        return false;
+                }
+                argv = malloc((argc + 1) * sizeof(char *));
+                argbuf = malloc(arg_size);
+                if (argv == NULL || argbuf == NULL) {
+                        fprintf(stderr, "malloc failed\n");
+                        return false;
+                }
+                memset(argv, 0, (argc + 1) * sizeof(char *));
+                ret = __wasi_args_get((uint8_t **)argv, argbuf);
+                if (ret != 0) {
+                        fprintf(stderr, "__wasi_args_get failed with %d\n",
+                                ret);
+                        return false;
+                }
+
+                size_t i;
+                for (i = 0; i < argc; i++) {
+                        fprintf(stderr, "argv[%zu] = %s\n", i, argv[i]);
+                }
+
+                enum longopt {
+                        opt_sensor,
+                };
+                static const struct option longopts[] = {
+                        {
+                                "sensor",
+                                required_argument,
+                                NULL,
+                                opt_sensor,
+                        },
+                        {
+                                NULL,
+                                0,
+                                NULL,
+                                0,
+                        },
+                };
+                int longidx;
+                while ((ret = getopt_long(argc, argv, "", longopts,
+                                          &longidx)) != -1) {
+                        switch (ret) {
+                        case opt_sensor:
+                                sensor = optarg;
+                                break;
+                        default:
+                                fprintf(stderr, "usage error\n");
+                                return false;
+                        }
+                }
+        }
+
         wasi_buffer_pool_buffer_pool_buffer_error_t buffer_error;
         sensing_own_pool_t pool;
         if (!wasi_buffer_pool_buffer_pool_static_pool_create(
@@ -134,6 +197,10 @@ exports_wasi_sensor_interface_main()
         }
         fprintf(stderr, "pool.create succeeded\n");
 
+        sensing_string_t device_name = {
+                .ptr = (uint8_t *)sensor,
+                .len = strlen(sensor),
+        };
         wasi_sensor_sensor_device_error_t device_error;
         sensing_own_device_t device;
         if (!wasi_sensor_sensor_static_device_open(&device_name, &device,
