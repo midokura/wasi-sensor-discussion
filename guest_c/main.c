@@ -156,24 +156,39 @@ exports_wasi_sensor_interface_main()
 
         sensing_borrow_pool_t borrowed_pool =
                 wasi_buffer_pool_buffer_pool_borrow_pool(pool);
+        sensing_own_pollable_t poll =
+                wasi_buffer_pool_buffer_pool_method_pool_subscribe(
+                        borrowed_pool);
+        sensing_borrow_pollable_t borrowed_poll =
+                wasi_io_0_2_0_rc_2023_11_10_poll_borrow_pollable(poll);
         int n = 60;
         int i;
-        for (i = 0; i < n; i++) {
-                wasi_buffer_pool_buffer_pool_frame_info_t frame;
-                if (!wasi_buffer_pool_buffer_pool_method_pool_block_read_frame(
-                            borrowed_pool, &frame, &buffer_error)) {
+        for (i = 0; i < n;) {
+                wasi_io_0_2_0_rc_2023_11_10_poll_method_pollable_block(
+                        borrowed_poll);
+                sensing_list_wasi_buffer_pool_buffer_pool_frame_info_t frames;
+                if (!wasi_buffer_pool_buffer_pool_method_pool_read_frames(
+                            borrowed_pool, 1, &frames, &buffer_error)) {
                         fprintf(stderr, "block-read-frame failed (error %u)\n",
                                 (unsigned int)buffer_error);
                         return false;
                 }
-                fprintf(stderr, "got a frame (%u/%u)\n", i + 1, n);
-                if (!process_frame_info(&frame)) {
-                        return false;
+                size_t j;
+                for (j = 0; j < frames.len; j++) {
+                        wasi_buffer_pool_buffer_pool_frame_info_t *frame =
+                                &frames.ptr[j];
+                        i++;
+                        fprintf(stderr, "got a frame (%u/%u)\n", i, n);
+                        if (!process_frame_info(frame)) {
+                                return false;
+                        }
                 }
-                wasi_buffer_pool_buffer_pool_frame_info_free(&frame);
+                sensing_list_wasi_buffer_pool_buffer_pool_frame_info_free(
+                        &frames);
         }
 
         fprintf(stderr, "cleaning up\n");
+        wasi_io_0_2_0_rc_2023_11_10_poll_pollable_drop_own(poll);
         wasi_sensor_sensor_device_drop_own(device);
         wasi_buffer_pool_buffer_pool_pool_drop_own(pool);
 
