@@ -91,7 +91,7 @@ impl SensorDevice for DummyDevice {
                     thread::sleep(next_frame - now);
                 }
                 next_frame += config.frame_duration;
-                match pool.enqueue(Box::new(data), None) {
+                match pool.try_enqueue(Box::new(data), None) {
                     Ok(_) => println!("DummyDevice generated frame enqueued"),
                     _ => println!("DummyDevice generated frame dropped"),
                 }
