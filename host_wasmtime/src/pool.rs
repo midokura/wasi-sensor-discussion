@@ -1,10 +1,10 @@
 use anyhow::Error;
 use anyhow::Result;
-use std::sync::mpsc::sync_channel;
-use std::sync::mpsc::Receiver;
-use std::sync::mpsc::SyncSender;
 use std::sync::Mutex;
 use std::time::Instant;
+use tokio::sync::mpsc::channel;
+use tokio::sync::mpsc::Receiver;
+use tokio::sync::mpsc::Sender;
 
 use super::*;
 use traits::BufferPool;
@@ -16,7 +16,7 @@ use wasi::buffer_pool::buffer_pool::PoolStatistics;
 struct SimplePoolSequencer {
     sequence_number: u64,
     boottime: Instant,
-    sender: SyncSender<(u64, u64, Box<FrameData>)>,
+    sender: Sender<(u64, u64, Box<FrameData>)>,
 
     /* stats */
     enqueued: u64,
@@ -41,7 +41,7 @@ impl SimplePool {
             BufferingMode::BufferingDiscard => mode,
             _ => return Err(BufferError::NotSupported),
         };
-        let (sender, receiver) = sync_channel(num);
+        let (sender, receiver) = channel(num);
         Ok(Self {
             sequencer: Mutex::new(SimplePoolSequencer {
                 sequence_number: 0,
@@ -80,7 +80,7 @@ impl BufferPool for SimplePool {
     fn dequeue(&self) -> (u64, u64, Box<FrameData>) {
         let mut receiver = self.receiver.lock().unwrap();
         receiver.dequeued += 1;
-        receiver.receiver.recv().unwrap()
+        receiver.receiver.blocking_recv().unwrap()
     }
     fn get_statistics(&self) -> Result<PoolStatistics, Error> {
         let seq = self.sequencer.lock().unwrap();
