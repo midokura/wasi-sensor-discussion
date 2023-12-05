@@ -109,7 +109,7 @@ impl<T: WasiSensorView> wasi::buffer_pool::buffer_pool::HostPool for T {
     > {
         let pool = SimplePool::new(mode, size as usize, buffer_num as usize)?;
         let pool = Arc::new(pool);
-        let idx = self.table().push_resource(Pool {
+        let idx = self.table().push(Pool {
             name: name.clone(),
             next_frame: None,
             pool: pool.clone(),
@@ -128,7 +128,7 @@ impl<T: WasiSensorView> wasi::buffer_pool::buffer_pool::HostPool for T {
             wasi::buffer_pool::buffer_pool::BufferError,
         >,
     > {
-        let pool = self.table().get_resource_mut(&res)?;
+        let pool = self.table().get_mut(&res)?;
         if max_results == 0 {
             return Ok(Ok(vec![]));
         }
@@ -168,9 +168,9 @@ impl<T: WasiSensorView> wasi::buffer_pool::buffer_pool::HostPool for T {
         &mut self,
         res: Resource<wasi::buffer_pool::buffer_pool::Pool>,
     ) -> wasmtime::Result<()> {
-        let pool = self.table().get_resource(&res)?;
+        let pool = self.table().get(&res)?;
         let name = pool.name.clone();
-        self.table().delete_resource(res)?;
+        self.table().delete(res)?;
         self.pools().remove(&name);
         Ok(())
     }
@@ -197,7 +197,7 @@ impl<T: WasiSensorView> wasi::sensor::sensor::HostDevice for T {
         let device = Device {
             device: device_impl,
         };
-        let idx = self.table().push_resource(device)?;
+        let idx = self.table().push(device)?;
         Ok(Ok(idx))
     }
 
@@ -215,7 +215,7 @@ impl<T: WasiSensorView> wasi::sensor::sensor::HostDevice for T {
             _ => return Ok(Err(wasi::sensor::sensor::DeviceError::NotFound)),
         };
         let pool = Arc::clone(pool);
-        let device = self.table().get_resource_mut(&res)?;
+        let device = self.table().get_mut(&res)?;
         Ok(device.device.start_streaming(pool))
     }
     fn stop(
@@ -230,7 +230,7 @@ impl<T: WasiSensorView> wasi::sensor::sensor::HostDevice for T {
         key: wasi::sensor::property::PropertyKey,
         value: wasi::sensor::property::PropertyValue,
     ) -> Result<Result<(), wasi::sensor::sensor::DeviceError>> {
-        let device = self.table().get_resource_mut(&res)?;
+        let device = self.table().get_mut(&res)?;
         Ok(device.device.set_property(key, value))
     }
     fn get_property(
@@ -239,12 +239,12 @@ impl<T: WasiSensorView> wasi::sensor::sensor::HostDevice for T {
         key: wasi::sensor::property::PropertyKey,
     ) -> Result<Result<wasi::sensor::property::PropertyValue, wasi::sensor::sensor::DeviceError>>
     {
-        let device = self.table().get_resource_mut(&res)?;
+        let device = self.table().get_mut(&res)?;
         Ok(device.device.get_property(key))
     }
     fn drop(&mut self, res: Resource<wasi::sensor::sensor::Device>) -> wasmtime::Result<()> {
         trace!("dropping {:?}", res);
-        self.table().delete_resource(res)?;
+        self.table().delete(res)?;
         Ok(())
     }
 }
