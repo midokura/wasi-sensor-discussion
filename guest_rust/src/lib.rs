@@ -195,8 +195,15 @@ fn main2() -> Result<()> {
     println!("starting sensor {:?}", sensor);
     sensor.start(&pool_name)?;
     for _ in 0..60 {
-        let frame = pool.block_read_frame()?;
-        process_frame(&frame)?;
+        loop {
+            let frames = pool.read_frames(1)?;
+            for ref frame in &frames {
+                process_frame(frame)?;
+            }
+            if frames.len() > 0 {
+                break;
+            }
+        }
     }
     let stats = pool.get_statistics()?;
     println!("pool statistics: {:?}", stats);
