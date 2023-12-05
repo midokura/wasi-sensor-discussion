@@ -17,6 +17,73 @@
 
 sensing_string_t pool_name = STRING_LITERAL("my-pool");
 
+static uint32_t
+clamp(float f)
+{
+        if (f < 0.0) {
+                return 0;
+        }
+        if (f > 255.0) {
+                return 255;
+        }
+        return (uint32_t)f;
+}
+
+/*
+ * a naive implementation. maybe it's better to use fix point arithmetic.
+ * https://hk.interaction-lab.org/firewire/yuv.html
+ */
+static void
+yuv_to_rgb(uint32_t y, uint32_t u, uint32_t v, uint32_t *r, uint32_t *g,
+           uint32_t *b)
+{
+        float fy = 1.164 * ((float)y - 16.0);
+        float fu = (float)u - 128.0;
+        float fv = (float)v - 128.0;
+        float fr = fy + 1.596 * fv;
+        float fg = fy - 0.293 * fu - 0.813 * fv;
+        float fb = fy + 2.018 * fu;
+        *r = clamp(fr);
+        *g = clamp(fg);
+        *b = clamp(fb);
+}
+
+static uint8_t *
+convert_yuy2_to_rgb(uint32_t width, uint32_t height, uint32_t stride,
+                    const uint8_t *yuyv)
+{
+        uint8_t *rgb = malloc(width * height * 3);
+        if (rgb == NULL) {
+                return rgb;
+        }
+        uint8_t *rgbpixel = rgb;
+        uint32_t x;
+        uint32_t y;
+        for (y = 0; y < height; y++) {
+                const uint8_t *yuyvpixel = &yuyv[y * stride];
+                for (x = 0; x < width; x += 2) {
+                        uint32_t y1 = yuyvpixel[0];
+                        uint32_t u = yuyvpixel[1];
+                        uint32_t y2 = yuyvpixel[2];
+                        uint32_t v = yuyvpixel[3];
+                        yuyvpixel += 4;
+
+                        uint32_t r;
+                        uint32_t g;
+                        uint32_t b;
+                        yuv_to_rgb(y1, u, v, &r, &g, &b);
+                        *rgbpixel++ = r;
+                        *rgbpixel++ = g;
+                        *rgbpixel++ = b;
+                        yuv_to_rgb(y2, u, v, &r, &g, &b);
+                        *rgbpixel++ = r;
+                        *rgbpixel++ = g;
+                        *rgbpixel++ = b;
+                }
+        }
+        return rgb;
+}
+
 bool
 process_pixel_image(const wasi_buffer_pool_data_types_image_t *image)
 {
@@ -24,20 +91,36 @@ process_pixel_image(const wasi_buffer_pool_data_types_image_t *image)
                 &image->dimension;
         const uint8_t *payload = image->payload.ptr;
         const size_t payload_len = image->payload.len;
+        uint8_t *converted = NULL;
+        fprintf(stderr, "width %u height %u stride %u len %u\n",
+                (int)dimension->width, (int)dimension->height,
+                (int)dimension->stride_bytes, (int)payload_len);
 
+        uint32_t stride_bytes;
         switch (dimension->pixel_format) {
         case WASI_BUFFER_POOL_DATA_TYPES_PIXEL_FORMAT_RGB24:
+                stride_bytes = dimension->stride_bytes;
+                break;
+        case WASI_BUFFER_POOL_DATA_TYPES_PIXEL_FORMAT_YUY2:
+                converted = convert_yuy2_to_rgb(
+                        dimension->width, dimension->height,
+                        dimension->stride_bytes, payload);
+                if (converted == NULL) {
+                        goto fail;
+                }
+                payload = converted;
+                stride_bytes = dimension->width * 3;
                 break;
         default:
                 fprintf(stderr, "unimplemented pixel format %u\n",
                         dimension->pixel_format);
-                return false;
+                goto fail;
         }
 
         struct timespec tv;
         if (clock_gettime(CLOCK_REALTIME, &tv)) {
                 fprintf(stderr, "clock_gettime failed\n");
-                return false;
+                goto fail;
         }
         uintmax_t timestamp_ns =
                 (uintmax_t)tv.tv_sec * 1000000000 + tv.tv_nsec;
@@ -48,7 +131,7 @@ process_pixel_image(const wasi_buffer_pool_data_types_image_t *image)
         if (fp == NULL) {
                 fprintf(stderr, "failed to open a file %s: %s\n", filename,
                         strerror(errno));
-                return false;
+                goto fail;
         }
 
         struct jpeg_compress_struct cinfo;
@@ -65,13 +148,18 @@ process_pixel_image(const wasi_buffer_pool_data_types_image_t *image)
         uint32_t i;
         for (i = 0; i < dimension->height; i++) {
                 /* we assume 8-bit JSAMPLE */
-                JSAMPROW row = (JSAMPROW)&payload[dimension->stride_bytes * i];
+                JSAMPROW row = (JSAMPROW)&payload[stride_bytes * i];
                 jpeg_write_scanlines(&cinfo, &row, 1);
         }
         jpeg_finish_compress(&cinfo);
         jpeg_destroy_compress(&cinfo);
         fclose(fp);
+        free(converted);
         return true;
+
+fail:
+        free(converted);
+        return false;
 }
 
 bool
