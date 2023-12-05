@@ -28,7 +28,7 @@ interface data-types {
         argb32,
         /// a,b,g,r bpp=32
         abgr32,
-        /// YUV422 (Y1,Cb,Y2,Cr) bpp=32
+        /// YUV422 (Y1,Cb,Y2,Cr) bpp=16
         yuy2,
 
         /// how to express yuv, compress, planar
