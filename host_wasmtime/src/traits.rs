@@ -8,9 +8,11 @@ use wasi::sensor::property::PropertyKey;
 use wasi::sensor::property::PropertyValue;
 use wasi::sensor::sensor::DeviceError;
 
+#[async_trait::async_trait]
 pub trait BufferPool {
     fn try_enqueue(&self, frame: Box<FrameData>, timestamp: Option<u64>) -> Result<(), Error>;
     fn try_dequeue(&self) -> Option<(u64, u64, Box<FrameData>)>;
+    async fn dequeue(&self) -> (u64, u64, Box<FrameData>);
     fn get_statistics(&self) -> Result<PoolStatistics, Error>;
 }
 

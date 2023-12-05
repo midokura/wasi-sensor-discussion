@@ -1,11 +1,11 @@
 use anyhow::Error;
 use anyhow::Result;
-use std::sync::Mutex;
 use std::time::Instant;
 use tokio::sync::mpsc::channel;
 use tokio::sync::mpsc::error::TryRecvError;
 use tokio::sync::mpsc::Receiver;
 use tokio::sync::mpsc::Sender;
+use tokio::sync::Mutex;
 
 use super::*;
 use traits::BufferPool;
@@ -59,9 +59,10 @@ impl SimplePool {
     }
 }
 
+#[async_trait::async_trait]
 impl BufferPool for SimplePool {
     fn try_enqueue(&self, frame: Box<FrameData>, timestamp: Option<u64>) -> Result<(), Error> {
-        let mut seq = self.sequencer.lock().unwrap();
+        let mut seq = self.sequencer.blocking_lock();
         let timestamp = match timestamp {
             Some(t) => t,
             _ => seq.boottime.elapsed().as_nanos() as u64,
@@ -79,22 +80,32 @@ impl BufferPool for SimplePool {
         Ok(())
     }
     fn try_dequeue(&self) -> Option<(u64, u64, Box<FrameData>)> {
-        let mut receiver = self.receiver.lock().unwrap();
+        let mut receiver = self.receiver.blocking_lock();
         match receiver.receiver.try_recv() {
-            Ok(ok) => {
+            Ok(frame) => {
                 receiver.dequeued += 1;
-                Some(ok)
+                Some(frame)
             }
             Err(TryRecvError::Empty) => None,
             _ => panic!("disconnected"),
         }
     }
+    async fn dequeue(&self) -> (u64, u64, Box<FrameData>) {
+        let mut receiver = self.receiver.lock().await;
+        match receiver.receiver.recv().await {
+            Some(frame) => {
+                receiver.dequeued += 1;
+                frame
+            }
+            _ => panic!("disconnected"),
+        }
+    }
     fn get_statistics(&self) -> Result<PoolStatistics, Error> {
-        let seq = self.sequencer.lock().unwrap();
+        let seq = self.sequencer.blocking_lock();
         let enqueued = seq.enqueued;
         let dropped = seq.dropped;
         drop(seq);
-        let receiver = self.receiver.lock().unwrap();
+        let receiver = self.receiver.blocking_lock();
         let dequeued = receiver.dequeued;
         drop(receiver);
         Ok(PoolStatistics {

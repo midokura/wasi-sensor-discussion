@@ -11,6 +11,7 @@ use wasmtime_wasi::ambient_authority;
 use wasmtime_wasi::preview2::DirPerms;
 use wasmtime_wasi::preview2::FilePerms;
 use wasmtime_wasi::preview2::Pollable;
+use wasmtime_wasi::preview2::Subscribe;
 use wasmtime_wasi::preview2::Table;
 use wasmtime_wasi::preview2::WasiCtx;
 use wasmtime_wasi::preview2::WasiCtxBuilder;
@@ -44,8 +45,21 @@ trait WasiSensorView {
 
 pub struct Pool {
     name: String,
+    next_frame: Option<(u64, u64, Box<wasi::buffer_pool::buffer_pool::FrameData>)>,
     pool: Arc<dyn traits::BufferPool + Send + Sync>,
 }
+
+#[async_trait::async_trait]
+impl Subscribe for Pool {
+    async fn ready(&mut self) {
+        if self.next_frame.is_some() {
+            return;
+        }
+        let frame = self.pool.dequeue().await;
+        self.next_frame = Some(frame);
+    }
+}
+
 pub struct Device {
     device: Box<dyn SensorDevice + Send + Sync>,
 }
@@ -97,6 +111,7 @@ impl<T: WasiSensorView> wasi::buffer_pool::buffer_pool::HostPool for T {
         let pool = Arc::new(pool);
         let idx = self.table().push_resource(Pool {
             name: name.clone(),
+            next_frame: None,
             pool: pool.clone(),
         })?;
         self.pools().insert(name, pool);
@@ -132,7 +147,7 @@ impl<T: WasiSensorView> wasi::buffer_pool::buffer_pool::HostPool for T {
         &mut self,
         res: Resource<wasi::buffer_pool::buffer_pool::Pool>,
     ) -> Result<Resource<Pollable>> {
-        todo!()
+        wasmtime_wasi::preview2::subscribe(self.table(), res)
     }
 
     fn get_statistics(
