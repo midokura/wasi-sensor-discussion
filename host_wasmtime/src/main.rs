@@ -132,8 +132,12 @@ impl<T: WasiSensorView> wasi::buffer_pool::buffer_pool::HostPool for T {
         if max_results == 0 {
             return Ok(Ok(vec![]));
         }
-        let Some((sequence_number, timestamp, data)) = pool.pool.try_dequeue() else {
-            return Ok(Ok(vec![]));
+        let (sequence_number, timestamp, data) = match pool.next_frame.take() {
+            Some(frame) => frame,
+            None => match pool.pool.try_dequeue() {
+                Some(frame) => frame,
+                None => return Ok(Ok(vec![])),
+            },
         };
         let frame = wasi::buffer_pool::buffer_pool::FrameInfo {
             sequence_number: sequence_number,
