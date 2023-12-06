@@ -64,6 +64,12 @@ interface buffer-pool {
         buffering-unlimited,
     }
 
+    record pool-statistics {
+        enqueued: u64,
+        dropped: u64,
+        dequeued: u64,
+    }
+
     /// a pool consists of a set of buffers.
     /// the number of buffers in a pool is static.
     /// when data (a frame) comes in from an associated device,
@@ -91,6 +97,8 @@ interface buffer-pool {
 
         block-read-frame: func()-> result<frame-info, buffer-error>;
         poll-read-frame: func()-> result<frame-info, buffer-error>;
+
+        get-statistics: func()-> result<pool-statistics, buffer-error>;
     }
 }
 
