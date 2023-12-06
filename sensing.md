@@ -314,6 +314,13 @@ usually the time when it was read from the underlying hardware.
 <p>< Overwrite the oldest frame. behave like ring
 </li>
 </ul>
+<h4><a name="pool_statistics"><code>record pool-statistics</code></a></h4>
+<h5>Record Fields</h5>
+<ul>
+<li><a name="pool_statistics.enqueued"><code>enqueued</code></a>: <code>u64</code></li>
+<li><a name="pool_statistics.dropped"><code>dropped</code></a>: <code>u64</code></li>
+<li><a name="pool_statistics.dequeued"><code>dequeued</code></a>: <code>u64</code></li>
+</ul>
 <h4><a name="pool"><code>resource pool</code></a></h4>
 <h2>a pool consists of a set of buffers.
 the number of buffers in a pool is static.
@@ -391,6 +398,15 @@ for other buffering modes, this is ignored.</p>
 <h5>Return values</h5>
 <ul>
 <li><a name="method_pool.poll_read_frame.0"></a> result&lt;<a href="#frame_info"><a href="#frame_info"><code>frame-info</code></a></a>, <a href="#buffer_error"><a href="#buffer_error"><code>buffer-error</code></a></a>&gt;</li>
+</ul>
+<h4><a name="method_pool.get_statistics"><code>[method]pool.get-statistics: func</code></a></h4>
+<h5>Params</h5>
+<ul>
+<li><a name="method_pool.get_statistics.self"><code>self</code></a>: borrow&lt;<a href="#pool"><a href="#pool"><code>pool</code></a></a>&gt;</li>
+</ul>
+<h5>Return values</h5>
+<ul>
+<li><a name="method_pool.get_statistics.0"></a> result&lt;<a href="#pool_statistics"><a href="#pool_statistics"><code>pool-statistics</code></a></a>, <a href="#buffer_error"><a href="#buffer_error"><code>buffer-error</code></a></a>&gt;</li>
 </ul>
 <h2><a name="wasi:sensor_interface">Export interface wasi:sensor/interface</a></h2>
 <hr />
