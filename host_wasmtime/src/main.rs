@@ -165,7 +165,7 @@ impl<T: WasiSensorView> wasi::buffer_pool::buffer_pool::HostPool for T {
             wasi::buffer_pool::buffer_pool::BufferError,
         >,
     > {
-        let pool = self.table().get_resource(&res)?;
+        let pool = self.table().get(&res)?;
         let stats = pool.pool.get_statistics()?;
         Ok(Ok(stats))
     }
