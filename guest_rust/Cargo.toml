@@ -12,5 +12,5 @@ crate-type = ["cdylib"]
 anyhow = "1.0.75"
 fraction = "0.14"
 getopts = "0.2"
-wit-bindgen = "0.14.0"
+wit-bindgen = "0.16.0"
 image = { version = "0.24.7", default-features = false, features = ["jpeg"] }
