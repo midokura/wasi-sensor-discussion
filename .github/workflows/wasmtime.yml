@@ -30,7 +30,7 @@ jobs:
     - name: Install dependencies (cargo)
       run: |
         cargo install --version 1.0.51 wasm-tools
-        cargo install --version 0.14.0 wit-bindgen-cli
+        cargo install --version 0.16.0 wit-bindgen-cli
 
     - name: Install dependencies (ubuntu)
       if: startsWith(matrix.os, 'ubuntu-')
