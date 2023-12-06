@@ -275,7 +275,7 @@ exports_wasi_sensor_interface_main()
         }
 
         wasi_buffer_pool_buffer_pool_buffer_error_t buffer_error;
-        sensing_own_pool_t pool;
+        wasi_buffer_pool_buffer_pool_own_pool_t pool;
         if (!wasi_buffer_pool_buffer_pool_static_pool_create(
                     WASI_BUFFER_POOL_BUFFER_POOL_BUFFERING_MODE_BUFFERING_DISCARD,
                     0, 1, &pool_name, &pool, &buffer_error)) {
@@ -290,7 +290,7 @@ exports_wasi_sensor_interface_main()
                 .len = strlen(sensor),
         };
         wasi_sensor_sensor_device_error_t device_error;
-        sensing_own_device_t device;
+        wasi_sensor_sensor_own_device_t device;
         if (!wasi_sensor_sensor_static_device_open(&device_name, &device,
                                                    &device_error)) {
                 fprintf(stderr, "device.open failed (error %u)\n",
@@ -299,7 +299,7 @@ exports_wasi_sensor_interface_main()
         }
         fprintf(stderr, "device.open succeeded\n");
 
-        sensing_borrow_device_t borrowed_device =
+        wasi_sensor_sensor_borrow_device_t borrowed_device =
                 wasi_sensor_sensor_borrow_device(device);
         if (!wasi_sensor_sensor_method_device_start(
                     borrowed_device, &pool_name, &device_error)) {
@@ -309,19 +309,19 @@ exports_wasi_sensor_interface_main()
         }
         fprintf(stderr, "device.start succeeded\n");
 
-        sensing_borrow_pool_t borrowed_pool =
+        wasi_buffer_pool_buffer_pool_borrow_pool_t borrowed_pool =
                 wasi_buffer_pool_buffer_pool_borrow_pool(pool);
-        sensing_own_pollable_t poll =
+        wasi_io_0_2_0_rc_2023_11_10_poll_own_pollable_t poll =
                 wasi_buffer_pool_buffer_pool_method_pool_subscribe(
                         borrowed_pool);
-        sensing_borrow_pollable_t borrowed_poll =
+        wasi_io_0_2_0_rc_2023_11_10_poll_borrow_pollable_t borrowed_poll =
                 wasi_io_0_2_0_rc_2023_11_10_poll_borrow_pollable(poll);
         int n = 60;
         int i;
         for (i = 0; i < n;) {
                 wasi_io_0_2_0_rc_2023_11_10_poll_method_pollable_block(
                         borrowed_poll);
-                sensing_list_wasi_buffer_pool_buffer_pool_frame_info_t frames;
+                wasi_buffer_pool_buffer_pool_list_frame_info_t frames;
                 if (!wasi_buffer_pool_buffer_pool_method_pool_read_frames(
                             borrowed_pool, 1, &frames, &buffer_error)) {
                         fprintf(stderr, "block-read-frame failed (error %u)\n",
@@ -338,8 +338,7 @@ exports_wasi_sensor_interface_main()
                                 return false;
                         }
                 }
-                sensing_list_wasi_buffer_pool_buffer_pool_frame_info_free(
-                        &frames);
+                wasi_buffer_pool_buffer_pool_list_frame_info_free(&frames);
         }
 
         fprintf(stderr, "cleaning up\n");
