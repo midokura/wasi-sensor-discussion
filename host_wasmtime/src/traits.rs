@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use super::*;
 use wasi::buffer_pool::buffer_pool::FrameData;
+use wasi::buffer_pool::buffer_pool::PoolStatistics;
 use wasi::sensor::property::PropertyKey;
 use wasi::sensor::property::PropertyValue;
 use wasi::sensor::sensor::DeviceError;
@@ -10,6 +11,7 @@ use wasi::sensor::sensor::DeviceError;
 pub trait BufferPool {
     fn enqueue(&self, frame: Box<FrameData>, timestamp: Option<u64>) -> Result<(), Error>;
     fn dequeue(&self) -> (u64, u64, Box<FrameData>);
+    fn get_statistics(&self) -> Result<PoolStatistics, Error>;
 }
 
 pub trait SensorDevice {

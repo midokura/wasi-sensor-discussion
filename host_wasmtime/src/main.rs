@@ -132,6 +132,21 @@ impl<T: WasiSensorView> wasi::buffer_pool::buffer_pool::HostPool for T {
             wasi::buffer_pool::buffer_pool::BufferError::NotSupported,
         ))
     }
+
+    fn get_statistics(
+        &mut self,
+        res: Resource<wasi::buffer_pool::buffer_pool::Pool>,
+    ) -> Result<
+        Result<
+            wasi::buffer_pool::buffer_pool::PoolStatistics,
+            wasi::buffer_pool::buffer_pool::BufferError,
+        >,
+    > {
+        let pool = self.table().get_resource(&res)?;
+        let stats = pool.pool.get_statistics()?;
+        Ok(Ok(stats))
+    }
+
     fn drop(
         &mut self,
         res: Resource<wasi::buffer_pool::buffer_pool::Pool>,
