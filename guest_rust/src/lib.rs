@@ -198,6 +198,8 @@ fn main2() -> Result<()> {
         let frame = pool.block_read_frame()?;
         process_frame(&frame)?;
     }
+    let stats = pool.get_statistics()?;
+    println!("pool statistics: {:?}", stats);
     Ok(())
 }
 
