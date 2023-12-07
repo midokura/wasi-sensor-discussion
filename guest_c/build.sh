@@ -50,7 +50,7 @@ test -d "${WASI_SDK_DIR}" || fetch_wasi_sdk
 
 CC=${CC:-${WASI_SDK_DIR}/bin/clang}
 wit-bindgen c ../wit
-${CC} -I./libjpeg/include -mexec-model=reactor -o guest.wasm main.c sensing.c sensing_component_type.o -L./libjpeg/lib -ljpeg
+${CC} -Os -I./libjpeg/include -mexec-model=reactor -o guest.wasm main.c sensing.c sensing_component_type.o -L./libjpeg/lib -ljpeg
 wasm-tools component new \
 guest.wasm \
 -o guest-component.wasm \
