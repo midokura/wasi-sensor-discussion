@@ -341,6 +341,18 @@ exports_wasi_sensor_interface_main()
                 wasi_buffer_pool_buffer_pool_list_frame_info_free(&frames);
         }
 
+        wasi_buffer_pool_buffer_pool_pool_statistics_t stats;
+        if (!wasi_buffer_pool_buffer_pool_method_pool_get_statistics(
+                    borrowed_pool, &stats, &buffer_error)) {
+                fprintf(stderr, "get-statistics failed (error %u)\n",
+                        (unsigned int)buffer_error);
+                return false;
+        }
+        fprintf(stderr,
+                "stats: enqueued=%" PRIu64 " dequeued=%" PRIu64
+                " dropped=%" PRIu64 "\n",
+                stats.enqueued, stats.dequeued, stats.dropped);
+
         fprintf(stderr, "cleaning up\n");
         wasi_io_0_2_0_rc_2023_11_10_poll_pollable_drop_own(poll);
         wasi_sensor_sensor_device_drop_own(device);
