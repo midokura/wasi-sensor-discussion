@@ -5,6 +5,7 @@ use anyhow::Result;
 use image::flat::FlatSamples;
 use image::flat::SampleLayout;
 use image::ImageBuffer;
+use image::Luma;
 use image::Rgb;
 
 use fraction::Fraction;
@@ -67,13 +68,12 @@ fn process_pixel_image(image: &wasi::buffer_pool::data_types::Image) -> Result<(
         dimension,
         payload.len()
     );
-    let channels = 3;
     let height_stride = dimension.stride_bytes;
 
     // convert to rgb
     let converted;
-    let (height_stride, payload) = match dimension.pixel_format {
-        wasi::buffer_pool::data_types::PixelFormat::Rgb24 => (height_stride, payload),
+    let (channels, height_stride, payload) = match dimension.pixel_format {
+        wasi::buffer_pool::data_types::PixelFormat::Rgb24 => (3, height_stride, payload),
         wasi::buffer_pool::data_types::PixelFormat::Yuy2 => {
             converted = convert_yuy2_to_rgb(
                 dimension.width,
@@ -81,8 +81,9 @@ fn process_pixel_image(image: &wasi::buffer_pool::data_types::Image) -> Result<(
                 dimension.stride_bytes,
                 payload,
             );
-            (dimension.width * channels, &converted)
+            (3, dimension.width * 3, &converted)
         }
+        wasi::buffer_pool::data_types::PixelFormat::Grey => (1, height_stride, payload),
         _ => {
             println!(
                 "guest: dropping a frame with unimplemented format {:?}",
@@ -107,12 +108,21 @@ fn process_pixel_image(image: &wasi::buffer_pool::data_types::Image) -> Result<(
         color_hint: None,
     };
 
-    let buffer: ImageBuffer<Rgb<u8>, &[u8]> = flat.try_into_buffer().unwrap();
     let unixtime_ns = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .expect("unix time")
         .as_nanos();
-    buffer.save(format!("{}.jpg", unixtime_ns))?;
+    match channels {
+        3 => {
+            let buffer: ImageBuffer<Rgb<u8>, &[u8]> = flat.try_into_buffer().unwrap();
+            buffer.save(format!("{}.jpg", unixtime_ns))?;
+        }
+        1 => {
+            let buffer: ImageBuffer<Luma<u8>, &[u8]> = flat.try_into_buffer().unwrap();
+            buffer.save(format!("{}.jpg", unixtime_ns))?;
+        }
+        _ => bail!("channels {}", channels),
+    }
     Ok(())
 }
 
