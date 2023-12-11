@@ -71,8 +71,11 @@ impl SensorDevice for NokhwaDevice {
             let resolution = buffer.resolution();
             let width = resolution.width();
             let height = resolution.height();
-            let (pixel_format, byte_per_pixel) = match buffer.source_frame_format() {
+            let nokhwa_frame_format = buffer.source_frame_format();
+            let (pixel_format, byte_per_pixel) = match nokhwa_frame_format {
                 FrameFormat::YUYV => (wasi::buffer_pool::data_types::PixelFormat::Yuy2, 2),
+                FrameFormat::GRAY => (wasi::buffer_pool::data_types::PixelFormat::Grey, 1),
+                FrameFormat::RAWRGB => (wasi::buffer_pool::data_types::PixelFormat::Rgb24, 3),
                 _ => {
                     println!("NokhwaDevice dropping a frame with unimplemented format");
                     return;
