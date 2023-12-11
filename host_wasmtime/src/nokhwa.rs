@@ -66,6 +66,16 @@ impl SensorDevice for NokhwaDevice {
         pool: Arc<dyn BufferPool + Send + Sync>,
     ) -> Result<(), DeviceError> {
         let ref mut camera = self.camera;
+        match camera.set_frame_format(FrameFormat::YUYV) {
+            Ok(_) => {}, // Do nothing on success
+            Err(e) => {
+                // Attempted to set the YUYV format but encountered an error.
+                // Note: This error might be a false positive, and the format setting could actually be applied.
+                // This behavior may be specific to certain camera models/drivers, 
+                // so it's important to carefully check the situation and implement additional verification if necessary.
+                println!("Attempted to set YUYV format, but an error was reported: {}", e);
+            }
+        }
         camera.set_callback(move |buffer| {
             println!("NokhwaDevice callback");
             let resolution = buffer.resolution();
