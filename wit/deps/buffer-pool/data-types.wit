@@ -30,6 +30,8 @@ interface data-types {
         abgr32,
         /// YUV422 (Y1,Cb,Y2,Cr) bpp=16
         yuy2,
+        /// Motion JPEG
+        mjpeg,
 
         /// how to express yuv, compress, planar
     }
@@ -39,7 +41,8 @@ interface data-types {
         width: u32,
         /// Image height.
         height: u32,
-        /// Image stride
+        /// Image stride.
+        /// 0 for compressed formats like mjpeg.
         stride-bytes: u32,
         /// The format of a pixel.
         pixel-format: pixel-format,
