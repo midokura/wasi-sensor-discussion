@@ -85,7 +85,7 @@ fn process_pixel_image(image: &wasi::buffer_pool::data_types::Image) -> Result<(
             );
             (3, dimension.width * 3, &converted)
         }
-        wasi::buffer_pool::data_types::PixelFormat::Grey => (1, height_stride, payload),
+        wasi::buffer_pool::data_types::PixelFormat::Gray => (1, height_stride, payload),
         wasi::buffer_pool::data_types::PixelFormat::Mjpeg => (0, 0, payload),
         _ => {
             println!(
