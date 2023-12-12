@@ -76,8 +76,12 @@ impl SensorDevice for NokhwaDevice {
                 FrameFormat::YUYV => (wasi::buffer_pool::data_types::PixelFormat::Yuy2, 2),
                 FrameFormat::GRAY => (wasi::buffer_pool::data_types::PixelFormat::Grey, 1),
                 FrameFormat::RAWRGB => (wasi::buffer_pool::data_types::PixelFormat::Rgb24, 3),
+                FrameFormat::MJPEG => (wasi::buffer_pool::data_types::PixelFormat::Mjpeg, 0),
                 _ => {
-                    println!("NokhwaDevice dropping a frame with unimplemented format");
+                    println!(
+                        "NokhwaDevice dropping a frame with unimplemented format {}",
+                        nokhwa_frame_format
+                    );
                     return;
                 }
             };
