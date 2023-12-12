@@ -74,7 +74,7 @@ impl SensorDevice for NokhwaDevice {
             let nokhwa_frame_format = buffer.source_frame_format();
             let (pixel_format, byte_per_pixel) = match nokhwa_frame_format {
                 FrameFormat::YUYV => (wasi::buffer_pool::data_types::PixelFormat::Yuy2, 2),
-                FrameFormat::GRAY => (wasi::buffer_pool::data_types::PixelFormat::Grey, 1),
+                FrameFormat::GRAY => (wasi::buffer_pool::data_types::PixelFormat::Gray, 1),
                 FrameFormat::RAWRGB => (wasi::buffer_pool::data_types::PixelFormat::Rgb24, 3),
                 FrameFormat::MJPEG => (wasi::buffer_pool::data_types::PixelFormat::Mjpeg, 0),
                 _ => {
