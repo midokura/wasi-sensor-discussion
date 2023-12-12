@@ -62,6 +62,10 @@
 <p><a name="pixel_format.yuy2"><code>yuy2</code></a></p>
 <p>YUV422 (Y1,Cb,Y2,Cr) bpp=16
 </li>
+<li>
+<p><a name="pixel_format.mjpeg"><code>mjpeg</code></a></p>
+<p>Motion JPEG
+</li>
 </ul>
 <h4><a name="dimension"><code>record dimension</code></a></h4>
 <h5>Record Fields</h5>
@@ -76,7 +80,8 @@
 </li>
 <li>
 <p><a name="dimension.stride_bytes"><code>stride-bytes</code></a>: <code>u32</code></p>
-<p>Image stride
+<p>Image stride.
+0 for compressed formats like mjpeg.
 </li>
 <li>
 <p><a name="dimension.pixel_format"><a href="#pixel_format"><code>pixel-format</code></a></a>: <a href="#pixel_format"><a href="#pixel_format"><code>pixel-format</code></a></a></p>
