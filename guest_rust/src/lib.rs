@@ -11,6 +11,8 @@ use image::Rgb;
 use fraction::Fraction;
 use getopts::Options;
 use std::env;
+use std::fs::File;
+use std::io::prelude::*;
 
 wit_bindgen::generate!({
     world: "sensing",
@@ -84,6 +86,7 @@ fn process_pixel_image(image: &wasi::buffer_pool::data_types::Image) -> Result<(
             (3, dimension.width * 3, &converted)
         }
         wasi::buffer_pool::data_types::PixelFormat::Grey => (1, height_stride, payload),
+        wasi::buffer_pool::data_types::PixelFormat::Mjpeg => (0, 0, payload),
         _ => {
             println!(
                 "guest: dropping a frame with unimplemented format {:?}",
@@ -112,14 +115,19 @@ fn process_pixel_image(image: &wasi::buffer_pool::data_types::Image) -> Result<(
         .duration_since(std::time::UNIX_EPOCH)
         .expect("unix time")
         .as_nanos();
+    let filename = format!("{}.jpg", unixtime_ns);
     match channels {
         3 => {
             let buffer: ImageBuffer<Rgb<u8>, &[u8]> = flat.try_into_buffer().unwrap();
-            buffer.save(format!("{}.jpg", unixtime_ns))?;
+            buffer.save(filename)?;
         }
         1 => {
             let buffer: ImageBuffer<Luma<u8>, &[u8]> = flat.try_into_buffer().unwrap();
-            buffer.save(format!("{}.jpg", unixtime_ns))?;
+            buffer.save(filename)?;
+        }
+        0 => {
+            let mut file = File::create(filename)?;
+            file.write_all(&payload[..])?;
         }
         _ => bail!("channels {}", channels),
     }
