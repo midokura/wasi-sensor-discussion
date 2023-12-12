@@ -18,12 +18,16 @@ use wasmtime_wasi::preview2::WasiCtxBuilder;
 use wasmtime_wasi::preview2::WasiView;
 use wasmtime_wasi::Dir;
 
+#[cfg(feature = "dummy")]
 mod dummy_device;
+#[cfg(feature = "nokhwa")]
 mod nokhwa;
 mod pool;
 mod traits;
 
+#[cfg(feature = "dummy")]
 use dummy_device::DummyDevice;
+#[cfg(feature = "nokhwa")]
 use nokhwa::NokhwaDevice;
 use pool::SimplePool;
 use traits::SensorDevice;
@@ -190,10 +194,12 @@ impl<T: WasiSensorView> wasi::sensor::sensor::HostDevice for T {
     {
         trace!("opening a device {}", device_name);
         let device_impl: Box<dyn SensorDevice + Send + Sync> = match &*device_name {
+            #[cfg(feature = "dummy")]
             "dummy" => Box::new(match DummyDevice::new() {
                 Err(e) => return Ok(Err(e)),
                 Ok(i) => i,
             }),
+            #[cfg(feature = "nokhwa")]
             "nokhwa" => Box::new(match NokhwaDevice::new() {
                 Err(e) => return Ok(Err(e)),
                 Ok(i) => i,

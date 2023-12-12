@@ -5,19 +5,25 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
-anyhow = "1.0.75"
-fraction = "0.14"
-tracing = { version = "0.1.40", features = ["max_level_trace"] }
-tracing-subscriber = "0.3.18"
-image = { version = "0.24.7", default-features = false }
-async-trait = "0.1.74"
-tokio = { version = "1.35.0", default-features = false }
+[features]
+default = ["nokhwa", "dummy"]
+nokhwa = ["dep:nokhwa"]
+dummy = ["dep:fraction", "dep:image"]
 
+[dependencies]
 # released versions of nokhwa is a bit broken for avfoundation.
 # https://github.com/l1npengtul/nokhwa/pull/151
 # https://github.com/l1npengtul/nokhwa/pull/152
-nokhwa = {git = "https://github.com/yamt/nokhwa", rev = "0.10+fixes", features = ["input-native", "output-threaded"]}
+nokhwa = {git = "https://github.com/yamt/nokhwa", rev = "0.10+fixes", features = ["input-native", "output-threaded"], optional = true}
+
+fraction = { version = "0.14", optional = true }
+image = { version = "0.24.7", default-features = false, optional = true }
+
+anyhow = "1.0.75"
+tracing = { version = "0.1.40", features = ["max_level_trace"] }
+tracing-subscriber = "0.3.18"
+async-trait = "0.1.74"
+tokio = { version = "1.35.0", default-features = false }
 
 # preview2 and component-model are still moving targets.
 wasmtime = { version = "15.0.1", default-features = false, features = ["component-model", "cranelift"]}
