@@ -18,8 +18,8 @@ interface data-types {
 
 
     enum pixel-format {
-        /// greyscale, bpp=8
-        grey,
+        /// grayscale, bpp=8
+        gray,
         /// r,g,b bpp=24
         rgb24,
         /// b,g,r bpp=24
