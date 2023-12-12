@@ -39,8 +39,8 @@
 <h5>Enum Cases</h5>
 <ul>
 <li>
-<p><a name="pixel_format.grey"><code>grey</code></a></p>
-<p>greyscale, bpp=8
+<p><a name="pixel_format.gray"><code>gray</code></a></p>
+<p>grayscale, bpp=8
 </li>
 <li>
 <p><a name="pixel_format.rgb24"><code>rgb24</code></a></p>
