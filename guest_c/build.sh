@@ -14,7 +14,7 @@ fi
 # prepare wasi-sdk. this is copy-and-paste from:
 # https://github.com/yamt/toywasm/blob/master/build-wasm32-wasi.sh
 
-MAJOR=${WASI_SDK_MAJOR:-20}
+MAJOR=${WASI_SDK_MAJOR:-21}
 MINOR=${WASI_SDK_MINOR:-0}
 WASI_SDK_DIR=${WASI_SDK_DIR:-$(pwd)/.wasi-sdk-${MAJOR}.${MINOR}}
 DIST_DIR=.dist
