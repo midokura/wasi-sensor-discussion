@@ -169,7 +169,9 @@ fn main2() -> Result<()> {
         }
     };
     let pool_name = matches.opt_str("pool").unwrap_or("my-pool".to_string());
-    let device_name = matches.opt_str("sensor").unwrap_or("dummy".to_string());
+    let device_name = matches
+        .opt_str("sensor")
+        .unwrap_or("dummy:dummy".to_string());
     let sampling_rate = matches.opt_get::<f32>("sampling-rate")?;
     println!("pool name {}", pool_name);
     println!("sensor device name {}", device_name);
