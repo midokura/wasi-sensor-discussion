@@ -16,6 +16,11 @@ pub trait BufferPool {
     fn get_statistics(&self) -> Result<PoolStatistics, Error>;
 }
 
+pub trait SensorDeviceGroup {
+    fn list_devices(&self) -> Result<Vec<String>, DeviceError>;
+    fn open_device(&self, name: &str) -> Result<Box<dyn SensorDevice + Send + Sync>, DeviceError>;
+}
+
 pub trait SensorDevice {
     fn start_streaming(
         &mut self,
