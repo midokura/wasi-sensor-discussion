@@ -12,6 +12,7 @@ use wasi::sensor::sensor::DeviceError;
 
 use crate::traits::BufferPool;
 use crate::traits::SensorDevice;
+use crate::traits::SensorDeviceGroup;
 
 #[derive(Clone)]
 pub struct DummyDeviceConfig {
@@ -19,6 +20,8 @@ pub struct DummyDeviceConfig {
     pub height: u32,
     pub frame_duration: Duration,
 }
+
+pub struct DummyDeviceGroup {}
 
 pub struct DummyDevice {
     pub pool: Arc<Mutex<Option<Arc<dyn BufferPool + Send + Sync>>>>,
@@ -35,6 +38,16 @@ impl DummyDevice {
                 frame_duration: Duration::from_millis(33),
             })),
         })
+    }
+}
+
+impl SensorDeviceGroup for DummyDeviceGroup {
+    fn list_devices(&self) -> Result<Vec<String>, DeviceError> {
+        Ok(vec!["dummy".to_string()])
+    }
+    fn open_device(&self, name: &str) -> Result<Box<dyn SensorDevice + Send + Sync>, DeviceError> {
+        let dev = DummyDevice::new()?;
+        Ok(Box::new(dev))
     }
 }
 

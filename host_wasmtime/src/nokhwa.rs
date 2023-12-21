@@ -15,18 +15,51 @@ use nokhwa::CallbackCamera;
 
 use crate::traits::BufferPool;
 use crate::traits::SensorDevice;
+use crate::traits::SensorDeviceGroup;
+
+pub struct NokhwaDeviceGroup {}
 
 pub struct NokhwaDevice {
     camera: CallbackCamera,
 }
 
+impl SensorDeviceGroup for NokhwaDeviceGroup {
+    fn list_devices(&self) -> Result<Vec<String>, DeviceError> {
+        let mut names = Vec::new();
+        if let Some(backend) = nokhwa::native_api_backend() {
+            for device in nokhwa::query(backend)? {
+                names.push(match device.index() {
+                    CameraIndex::Index(n) => format!("I{}", n),
+                    CameraIndex::String(s) => format!("S{}", s),
+                })
+            }
+        }
+        Ok(names)
+    }
+    fn open_device(&self, name: &str) -> Result<Box<dyn SensorDevice + Send + Sync>, DeviceError> {
+        let dev = NokhwaDevice::new(name)?;
+        Ok(Box::new(dev))
+    }
+}
+
 impl NokhwaDevice {
-    pub fn new() -> Result<Self, DeviceError> {
+    pub fn new(name: &str) -> Result<Self, DeviceError> {
+        if !name.is_char_boundary(1) {
+            return Err(wasi::sensor::sensor::DeviceError::NotFound);
+        }
+        let (name_type, name) = name.split_at(1);
+        let index = match name_type {
+            "I" => CameraIndex::Index(
+                name.parse::<u32>()
+                    .or(Err(wasi::sensor::sensor::DeviceError::NotFound))?,
+            ),
+            "S" => CameraIndex::String(name.to_string()),
+            _ => return Err(wasi::sensor::sensor::DeviceError::NotFound),
+        };
         nokhwa::nokhwa_initialize(|granted| {
             println!("granted: {}", granted);
         });
         println!("NokhwaDevice granted");
-        let index = CameraIndex::Index(0); // XXX should not hardcode
         let requested =
             RequestedFormat::new::<RgbFormat>(RequestedFormatType::AbsoluteHighestFrameRate);
         println!("NokhwaDevice creating a threaded camera");

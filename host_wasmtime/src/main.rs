@@ -26,9 +26,11 @@ mod pool;
 mod traits;
 
 #[cfg(feature = "dummy")]
-use dummy_device::DummyDevice;
+use dummy_device::DummyDeviceGroup;
+
 #[cfg(feature = "nokhwa")]
-use nokhwa::NokhwaDevice;
+use nokhwa::NokhwaDeviceGroup;
+
 use pool::SimplePool;
 use traits::SensorDevice;
 
@@ -45,6 +47,9 @@ wasmtime::component::bindgen!({
 trait WasiSensorView {
     fn table(&mut self) -> &mut Table;
     fn pools(&mut self) -> &mut HashMap<String, Arc<dyn traits::BufferPool + Send + Sync>>;
+    fn device_groups(
+        &mut self,
+    ) -> &HashMap<String, Box<dyn traits::SensorDeviceGroup + Send + Sync>>;
 }
 
 pub struct Pool {
@@ -193,19 +198,16 @@ impl<T: WasiSensorView> wasi::sensor::sensor::HostDevice for T {
     ) -> Result<Result<Resource<wasi::sensor::sensor::Device>, wasi::sensor::sensor::DeviceError>>
     {
         trace!("opening a device {}", device_name);
-        let device_impl: Box<dyn SensorDevice + Send + Sync> = match &*device_name {
-            #[cfg(feature = "dummy")]
-            "dummy" => Box::new(match DummyDevice::new() {
-                Err(e) => return Ok(Err(e)),
-                Ok(i) => i,
-            }),
-            #[cfg(feature = "nokhwa")]
-            "nokhwa" => Box::new(match NokhwaDevice::new() {
-                Err(e) => return Ok(Err(e)),
-                Ok(i) => i,
-            }),
-            _ => return Ok(Err(wasi::sensor::sensor::DeviceError::NotFound)),
+        let v: Vec<&str> = device_name.split(":").collect();
+        if v.len() != 2 {
+            return Ok(Err(wasi::sensor::sensor::DeviceError::NotFound));
+        }
+        let group_name = v[0];
+        let name = v[1];
+        let Some(ref group) = self.device_groups().get(group_name) else {
+            return Ok(Err(wasi::sensor::sensor::DeviceError::NotFound));
         };
+        let device_impl = group.open_device(name)?;
         let device = Device {
             device: device_impl,
         };
@@ -214,7 +216,13 @@ impl<T: WasiSensorView> wasi::sensor::sensor::HostDevice for T {
     }
 
     fn list_names(&mut self) -> Result<Result<Vec<String>, wasi::sensor::sensor::DeviceError>> {
-        Ok(Ok(vec!["dummy".to_string(), "nokhwa".to_string()]))
+        let mut names = Vec::new();
+        for (k, v) in self.device_groups() {
+            for n in v.list_devices()? {
+                names.push(format!("{}:{}", k, n));
+            }
+        }
+        Ok(Ok(names))
     }
 
     fn start(
@@ -269,6 +277,7 @@ struct State {
     wasi: WasiCtx,
     table: Table,
     pools: HashMap<String, Arc<dyn traits::BufferPool + Send + Sync>>,
+    device_groups: HashMap<String, Box<dyn traits::SensorDeviceGroup + Send + Sync>>,
 }
 
 impl WasiView for State {
@@ -292,6 +301,11 @@ impl WasiSensorView for State {
     }
     fn pools(&mut self) -> &mut HashMap<String, Arc<dyn traits::BufferPool + Send + Sync>> {
         &mut self.pools
+    }
+    fn device_groups(
+        &mut self,
+    ) -> &HashMap<String, Box<dyn traits::SensorDeviceGroup + Send + Sync>> {
+        &self.device_groups
     }
 }
 
@@ -340,6 +354,13 @@ fn main() -> Result<()> {
     println!("add wasi");
     wasmtime_wasi::preview2::command::sync::add_to_linker(&mut linker)?;
 
+    let mut device_groups: HashMap<String, Box<dyn traits::SensorDeviceGroup + Send + Sync>> =
+        HashMap::new();
+    #[cfg(feature = "dummy")]
+    device_groups.insert("dummy".to_string(), Box::new(DummyDeviceGroup {}));
+    #[cfg(feature = "nokhwa")]
+    device_groups.insert("nokhwa".to_string(), Box::new(NokhwaDeviceGroup {}));
+
     println!("prepare a store");
     let mut store = Store::new(
         &engine,
@@ -347,6 +368,7 @@ fn main() -> Result<()> {
             wasi: wasi_ctx,
             table: Table::new(),
             pools: HashMap::new(),
+            device_groups: device_groups,
         },
     );
 
