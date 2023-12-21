@@ -211,7 +211,7 @@ exports_wasi_sensor_interface_main()
 
         fprintf(stderr, "C guest started\n");
 
-        const char *sensor = "dummy";
+        const char *sensor = "dummy:dummy";
         {
                 uint8_t *argbuf;
                 size_t arg_size;
