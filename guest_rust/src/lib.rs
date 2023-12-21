@@ -158,6 +158,7 @@ fn process_frame(frame: &wasi::buffer_pool::buffer_pool::FrameInfo) -> Result<()
 fn main2() -> Result<()> {
     let args: Vec<String> = env::args().collect();
     let mut opts = Options::new();
+    opts.optflag("", "list-sensors", "list sensor names");
     opts.optopt("", "pool", "pool name", "POOL");
     opts.optopt("", "sensor", "device name", "DEVICE");
     opts.optopt("", "sampling-rate", "samples per sec", "RATE");
@@ -168,6 +169,11 @@ fn main2() -> Result<()> {
             return Err(f.into());
         }
     };
+    if matches.opt_present("list-sensors") {
+        let device_names = wasi::sensor::sensor::Device::list_names()?;
+        println!("available devices: {:?}", device_names);
+        return Ok(());
+    }
     let pool_name = matches.opt_str("pool").unwrap_or("my-pool".to_string());
     let device_name = matches.opt_str("sensor").unwrap_or("dummy".to_string());
     let sampling_rate = matches.opt_get::<f32>("sampling-rate")?;
@@ -182,9 +188,6 @@ fn main2() -> Result<()> {
         number_of_frames,
         &pool_name,
     )?;
-
-    let device_names = wasi::sensor::sensor::Device::list_names()?;
-    println!("available devices: {:?}", device_names);
 
     let sensor = wasi::sensor::sensor::Device::open(&device_name)?;
     println!("opened sensor {:?}", sensor);
