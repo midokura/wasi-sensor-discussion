@@ -63,7 +63,7 @@ impl NokhwaDevice {
         let requested =
             RequestedFormat::new::<RgbFormat>(RequestedFormatType::AbsoluteHighestFrameRate);
         println!("NokhwaDevice creating a threaded camera");
-        let mut camera = CallbackCamera::new(index, requested, |buffer| {
+        let camera = CallbackCamera::new(index, requested, |buffer| {
             println!("NokhwaDevice dummy callback (this should not be called)");
         })?;
         Ok(Self { camera: camera })
