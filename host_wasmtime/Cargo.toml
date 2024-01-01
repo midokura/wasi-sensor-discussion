@@ -16,7 +16,7 @@ dummy = ["dep:fraction", "dep:image"]
 # https://github.com/l1npengtul/nokhwa/pull/152
 nokhwa = {git = "https://github.com/yamt/nokhwa", rev = "0.10+fixes", features = ["input-native", "output-threaded"], optional = true}
 
-fraction = { version = "0.14", optional = true }
+fraction = { version = "0.15", optional = true }
 image = { version = "0.24.7", default-features = false, optional = true }
 
 anyhow = "1.0.76"
