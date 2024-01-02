@@ -22,7 +22,7 @@ image = { version = "0.24.7", default-features = false, optional = true }
 anyhow = "1.0.76"
 tracing = { version = "0.1.40", features = ["max_level_trace"] }
 tracing-subscriber = "0.3.18"
-async-trait = "0.1.75"
+async-trait = "0.1.77"
 tokio = { version = "1.35.1", default-features = false }
 
 # preview2 and component-model are still moving targets.
