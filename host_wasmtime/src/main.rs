@@ -198,6 +198,11 @@ impl<T: WasiSensorView> wasi::sensor::sensor::HostDevice for T {
     ) -> Result<Result<Resource<wasi::sensor::sensor::Device>, wasi::sensor::sensor::DeviceError>>
     {
         trace!("opening a device {}", device_name);
+        // Note: We use structured names like "foo:bar", where "foo" is
+        // a device group and "bar" is a sensor in the group.
+        // This interpretation of names is specific to this host
+        // implementation (host_wasmtime), not meant to be a part of
+        // wasi-sensor specification.
         let v: Vec<&str> = device_name.split(":").collect();
         if v.len() != 2 {
             return Ok(Err(wasi::sensor::sensor::DeviceError::NotFound));
