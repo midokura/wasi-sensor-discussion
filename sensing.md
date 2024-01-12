@@ -164,7 +164,7 @@ Eg. frame rate for image sensors.
 <li><a name="device_error.unknown"><code>unknown</code></a></li>
 </ul>
 <h4><a name="device"><code>resource device</code></a></h4>
-<hr />
+<h2>Sensor device</h2>
 <h3>Functions</h3>
 <h4><a name="static_device.open"><code>[static]device.open: func</code></a></h4>
 <p>open the device.
