@@ -22,7 +22,7 @@ interface sensor {
       unknown
   }
 
-  // Sensor device
+  /// Sensor device
   resource device {
       /// open the device.
       /// this might power on the device.
