@@ -17,7 +17,7 @@ dummy = ["dep:fraction", "dep:image"]
 nokhwa = {git = "https://github.com/yamt/nokhwa", rev = "0.10+fixes", features = ["input-native", "output-threaded"], optional = true}
 
 fraction = { version = "0.15", optional = true }
-image = { version = "0.24.7", default-features = false, optional = true }
+image = { version = "0.24.8", default-features = false, optional = true }
 
 anyhow = "1.0.79"
 tracing = { version = "0.1.40", features = ["max_level_trace"] }
