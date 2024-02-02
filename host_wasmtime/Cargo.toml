@@ -23,7 +23,7 @@ anyhow = "1.0.79"
 tracing = { version = "0.1.40", features = ["max_level_trace"] }
 tracing-subscriber = "0.3.18"
 async-trait = "0.1.77"
-tokio = { version = "1.35.1", default-features = false }
+tokio = { version = "1.36.0", default-features = false }
 
 # preview2 and component-model are still moving targets.
 wasmtime = { version = "16.0.0", default-features = false, features = ["component-model", "cranelift"]}
