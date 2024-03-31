@@ -13,4 +13,4 @@ anyhow = "1.0.79"
 fraction = "0.15"
 getopts = "0.2"
 wit-bindgen = "0.16.0"
-image = { version = "0.24.8", default-features = false, features = ["jpeg"] }
+image = { version = "0.25.1", default-features = false, features = ["jpeg"] }
