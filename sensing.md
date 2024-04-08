@@ -5,7 +5,7 @@
 <li>interface <a href="#wasi:buffer_pool_data_types"><code>wasi:buffer-pool/data-types</code></a></li>
 <li>interface <a href="#wasi:sensor_property"><code>wasi:sensor/property</code></a></li>
 <li>interface <a href="#wasi:sensor_sensor"><code>wasi:sensor/sensor</code></a></li>
-<li>interface <a href="#wasi:io_poll_0.2.0_rc_2023_11_10"><code>wasi:io/poll@0.2.0-rc-2023-11-10</code></a></li>
+<li>interface <a href="#wasi:io_poll_0.2.0"><code>wasi:io/poll@0.2.0</code></a></li>
 <li>interface <a href="#wasi:buffer_pool_buffer_pool"><code>wasi:buffer-pool/buffer-pool</code></a></li>
 </ul>
 </li>
@@ -227,7 +227,7 @@ this might power on the device.</p>
 <ul>
 <li><a name="method_device.get_property.0"></a> result&lt;<a href="#property_value"><a href="#property_value"><code>property-value</code></a></a>, <a href="#device_error"><a href="#device_error"><code>device-error</code></a></a>&gt;</li>
 </ul>
-<h2><a name="wasi:io_poll_0.2.0_rc_2023_11_10">Import interface wasi:io/poll@0.2.0-rc-2023-11-10</a></h2>
+<h2><a name="wasi:io_poll_0.2.0">Import interface wasi:io/poll@0.2.0</a></h2>
 <p>A poll API intended to let users wait for I/O events on multiple handles
 at once.</p>
 <hr />
