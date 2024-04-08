@@ -12,7 +12,6 @@ use wasmtime_wasi::preview2::DirPerms;
 use wasmtime_wasi::preview2::FilePerms;
 use wasmtime_wasi::preview2::Pollable;
 use wasmtime_wasi::preview2::Subscribe;
-use wasmtime_wasi::preview2::Table;
 use wasmtime_wasi::preview2::WasiCtx;
 use wasmtime_wasi::preview2::WasiCtxBuilder;
 use wasmtime_wasi::preview2::WasiView;
@@ -45,7 +44,7 @@ wasmtime::component::bindgen!({
 });
 
 trait WasiSensorView {
-    fn table(&mut self) -> &mut Table;
+    fn table(&mut self) -> &mut ResourceTable;
     fn pools(&mut self) -> &mut HashMap<String, Arc<dyn traits::BufferPool + Send + Sync>>;
     fn device_groups(
         &mut self,
@@ -280,16 +279,16 @@ impl<T: WasiSensorView> wasi::sensor::property::Host for T {}
 
 struct State {
     wasi: WasiCtx,
-    table: Table,
+    table: ResourceTable,
     pools: HashMap<String, Arc<dyn traits::BufferPool + Send + Sync>>,
     device_groups: HashMap<String, Box<dyn traits::SensorDeviceGroup + Send + Sync>>,
 }
 
 impl WasiView for State {
-    fn table(&self) -> &Table {
+    fn table(&self) -> &ResourceTable {
         &self.table
     }
-    fn table_mut(&mut self) -> &mut Table {
+    fn table_mut(&mut self) -> &mut ResourceTable {
         &mut self.table
     }
     fn ctx(&self) -> &wasmtime_wasi::preview2::WasiCtx {
@@ -301,7 +300,7 @@ impl WasiView for State {
 }
 
 impl WasiSensorView for State {
-    fn table(&mut self) -> &mut Table {
+    fn table(&mut self) -> &mut ResourceTable {
         &mut self.table
     }
     fn pools(&mut self) -> &mut HashMap<String, Arc<dyn traits::BufferPool + Send + Sync>> {
@@ -371,7 +370,7 @@ fn main() -> Result<()> {
         &engine,
         State {
             wasi: wasi_ctx,
-            table: Table::new(),
+            table: ResourceTable::new(),
             pools: HashMap::new(),
             device_groups: device_groups,
         },
