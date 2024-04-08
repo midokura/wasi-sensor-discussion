@@ -26,5 +26,5 @@ async-trait = "0.1.77"
 tokio = { version = "1.37.0", default-features = false }
 
 # preview2 and component-model are still moving targets.
-wasmtime = { version = "17.0.0", default-features = false, features = ["component-model", "cranelift"]}
-wasmtime-wasi = { version = "17.0.0", default-features = false, features = ["preview2", "sync"] }
+wasmtime = { version = "17.0.2", default-features = false, features = ["component-model", "cranelift"]}
+wasmtime-wasi = { version = "17.0.2", default-features = false, features = ["preview2", "sync"] }
