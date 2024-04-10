@@ -19,7 +19,7 @@ nokhwa = {git = "https://github.com/yamt/nokhwa", rev = "0.10+fixes", features =
 fraction = { version = "0.15", optional = true }
 image = { version = "0.24.8", default-features = false, optional = true }
 
-anyhow = "1.0.79"
+anyhow = "1.0.82"
 tracing = { version = "0.1.40", features = ["max_level_trace"] }
 tracing-subscriber = "0.3.18"
 async-trait = "0.1.77"
