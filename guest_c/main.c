@@ -320,8 +320,7 @@ exports_wasi_sensor_interface_main()
         int n = 60;
         int i;
         for (i = 0; i < n;) {
-                wasi_io_poll_method_pollable_block(
-                        borrowed_poll);
+                wasi_io_poll_method_pollable_block(borrowed_poll);
                 wasi_buffer_pool_buffer_pool_list_frame_info_t frames;
                 if (!wasi_buffer_pool_buffer_pool_method_pool_read_frames(
                             borrowed_pool, 1, &frames, &buffer_error)) {
