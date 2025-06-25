@@ -10,9 +10,9 @@ release=release
 #release_opt=
 #release=debug
 
-cargo build ${release_opt} --target wasm32-wasi
+cargo build ${release_opt} --target wasm32-wasip1
 wasm-tools component new \
-./target/wasm32-wasi/${release}/guest.wasm \
+./target/wasm32-wasip1/${release}/guest.wasm \
 -o guest-component.wasm \
 --adapt ./wasi_snapshot_preview1.reactor.wasm
 WASMTIME_BACKTRACE_DETAILS=1 ${WASMTIME:-wasmtime} compile --wasm component-model guest-component.wasm
