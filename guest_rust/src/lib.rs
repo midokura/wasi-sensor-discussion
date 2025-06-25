@@ -17,15 +17,12 @@ use std::io::prelude::*;
 wit_bindgen::generate!({
     world: "sensing",
     path: "../wit",
-    exports:{
-        world: T,
-        "wasi:sensor/interface": T,
+    with: {
+        "wasi:buffer-pool/data-types": generate,
+        "wasi:buffer-pool/buffer-pool": generate,
+        "wasi:io/poll@0.2.0": generate,
     },
 });
-
-struct T;
-
-use crate::exports::wasi::sensor::interface::Guest;
 
 // a naive implementation. maybe it's better to use fix point arithmetic.
 // https://hk.interaction-lab.org/firewire/yuv.html
@@ -233,6 +230,10 @@ fn main2() -> Result<()> {
     Ok(())
 }
 
+use crate::exports::wasi::sensor::interface::Guest;
+
+struct T;
+
 impl Guest for T {
     fn main() -> Result<(), ()> {
         println!("Hello, world!");
@@ -240,3 +241,5 @@ impl Guest for T {
         Ok(())
     }
 }
+
+export!(T);
