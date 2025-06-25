@@ -312,15 +312,15 @@ exports_wasi_sensor_interface_main()
 
         wasi_buffer_pool_buffer_pool_borrow_pool_t borrowed_pool =
                 wasi_buffer_pool_buffer_pool_borrow_pool(pool);
-        wasi_io_0_2_0_poll_own_pollable_t poll =
+        wasi_io_poll_own_pollable_t poll =
                 wasi_buffer_pool_buffer_pool_method_pool_subscribe(
                         borrowed_pool);
-        wasi_io_0_2_0_poll_borrow_pollable_t borrowed_poll =
-                wasi_io_0_2_0_poll_borrow_pollable(poll);
+        wasi_io_poll_borrow_pollable_t borrowed_poll =
+                wasi_io_poll_borrow_pollable(poll);
         int n = 60;
         int i;
         for (i = 0; i < n;) {
-                wasi_io_0_2_0_poll_method_pollable_block(
+                wasi_io_poll_method_pollable_block(
                         borrowed_poll);
                 wasi_buffer_pool_buffer_pool_list_frame_info_t frames;
                 if (!wasi_buffer_pool_buffer_pool_method_pool_read_frames(
@@ -355,7 +355,7 @@ exports_wasi_sensor_interface_main()
                 stats.enqueued, stats.dequeued, stats.dropped);
 
         fprintf(stderr, "cleaning up\n");
-        wasi_io_0_2_0_poll_pollable_drop_own(poll);
+        wasi_io_poll_pollable_drop_own(poll);
         wasi_sensor_sensor_device_drop_own(device);
         wasi_buffer_pool_buffer_pool_pool_drop_own(pool);
 
