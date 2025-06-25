@@ -25,7 +25,7 @@ jobs:
     steps:
     - name: Install dependencies (rustup)
       run: |
-        rustup target add wasm32-wasi
+        rustup target add wasm32-wasip1
 
     - name: Install dependencies (cargo)
       run: |
