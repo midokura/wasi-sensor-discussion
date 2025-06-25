@@ -3,16 +3,16 @@
 interface data-types {
     /// sensor data type
     record vector3f {
-        x: float32,
-        y: float32,
-        z: float32,
+        x: f32,
+        y: f32,
+        z: f32,
     }
 
     record quaternion-f {
-        x: float32,
-        y: float32,
-        z: float32,
-        w: float32,
+        x: f32,
+        y: f32,
+        z: f32,
+        w: f32,
     }
 
 
