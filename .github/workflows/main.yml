@@ -10,7 +10,7 @@ jobs:
     name: Check ABI files are up-to-date
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - uses: WebAssembly/wit-abi-up-to-date@v25
       with:
         wit-bindgen: '0.43.0'
