@@ -36,7 +36,7 @@ jobs:
       if: startsWith(matrix.os, 'ubuntu-')
       run: sudo apt-get update && sudo apt-get install -y pax
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
